@@ -3,6 +3,7 @@ package com.teamnumberseven.botl;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
@@ -12,6 +13,7 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -43,6 +45,9 @@ public class ThreadViewActivity extends AppCompatActivity {
         textView.setText(thread_request.toString());
         */
 
+        final LinearLayout linearLayout = new LinearLayout(this);
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
+
         // get thread from API
         final String URL = "http://bttl.herokuapp.com/api/get_thread";
         RequestQueue queue = Volley.newRequestQueue(this);
@@ -54,8 +59,22 @@ public class ThreadViewActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            VolleyLog.v("Response:%n %s", response.toString(4));
+                            JSONArray posts = response.getJSONArray("thread");
+                            String thread_posts = new String();
+                            for(int i = 0; i < posts.length(); i++) {
+                                JSONObject post_obj = posts.getJSONObject(i);
+                                thread_posts += post_obj.getString("message") + '\n';
+                            }
+                            textView.setText(thread_posts);
+                            /*VolleyLog.v("Response:%n %s", response.toString(4));
                             textView.setText(response.toString());
+
+                            for(int i = 0; i < 5; i++) {
+                                TextView textView = new TextView(ThreadViewActivity.this);
+                                textView.setText("LINE");
+                                linearLayout.addView(textView);
+
+                            }*/
                         }
                         catch (JSONException e) {
                             e.printStackTrace();
