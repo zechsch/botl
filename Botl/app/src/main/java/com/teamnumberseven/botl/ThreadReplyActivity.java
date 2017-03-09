@@ -43,7 +43,7 @@ public class ThreadReplyActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void sendReply(View view) {
+    public void sendReply(final View view) {
         EditText editText = (EditText) findViewById(R.id.editText);
 
         final String URL = "http://bttl.herokuapp.com/api/reply";
@@ -59,6 +59,9 @@ public class ThreadReplyActivity extends AppCompatActivity {
                     public void onResponse(JSONObject response) {
                         try {
                             VolleyLog.v("Response:%n %s", response.toString(4));
+                            Intent intent = new Intent(view.getContext(), ThreadViewActivity.class);
+                            intent.putExtra("thread_id", thread_id);
+                            startActivity(intent);
                         }
                         catch (JSONException e) {
                             e.printStackTrace();
@@ -74,8 +77,6 @@ public class ThreadReplyActivity extends AppCompatActivity {
         queue.start();
 
 
-        Intent intent = new Intent(view.getContext(), ThreadViewActivity.class);
-        intent.putExtra("thread_id", thread_id);
-        startActivity(intent);
+
     }
 }
