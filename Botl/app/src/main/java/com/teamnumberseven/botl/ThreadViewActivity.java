@@ -3,6 +3,7 @@ package com.teamnumberseven.botl;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -24,6 +25,8 @@ import java.util.HashMap;
 
 public class ThreadViewActivity extends AppCompatActivity {
 
+    String thread_id = new String();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,7 +34,7 @@ public class ThreadViewActivity extends AppCompatActivity {
 
         // get the intent that started this activity
         Intent intent = getIntent();
-        String thread_id = intent.getStringExtra("thread_id");
+        thread_id = intent.getStringExtra("thread_id");
         final TextView textView = (TextView) findViewById(R.id.textView);
         //textView.setText(thread_id);
 
@@ -100,5 +103,11 @@ public class ThreadViewActivity extends AppCompatActivity {
                 });
         queue.add(req);
         queue.start();
+    }
+
+    public void goToThreadReply(View view) {
+        Intent intent = new Intent(view.getContext(), ThreadReplyActivity.class);
+        intent.putExtra("thread_id", thread_id);
+        startActivity(intent);
     }
 }
