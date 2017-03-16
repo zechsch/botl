@@ -1,32 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@android:color/holo_red_light">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="LIVE FEED LIVE FEED LIVE FEED" />
+        android:visibility="visible">
 
-    <Button
-        android:id="@+id/button_1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Go to new activity 1"
-        android:onClick="goToThread"
-        android:tag="1">
-    </Button>
+        <Button
+            android:id="@+id/button2"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@color/colorPrimary"
+            android:elevation="2dp"
+            android:onClick="goToNewPost"
+            android:text="@string/PlusSign"
+            android:textSize="24sp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </android.support.constraint.ConstraintLayout>
 
-    <Button
-        android:id="@+id/button_2"
-        android:layout_width="wrap_content"
+    <ListView
+        android:id="@+id/listView"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Go to new activity 2"
-        android:onClick="goToThread"
-        android:tag="2">
-    </Button>
+        android:visibility="visible" />
+
     <Button
         android:id="@+id/button_3"
         android:layout_width="wrap_content"
@@ -35,6 +41,4 @@
         android:onClick="goToThread"
         android:tag="3">
     </Button>
-
-
 </LinearLayout>

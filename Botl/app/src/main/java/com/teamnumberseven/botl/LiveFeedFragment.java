@@ -18,4 +18,6 @@ public class LiveFeedFragment extends Fragment {
         View view = inflater.inflate(R.layout.feed_fragment, container, false);
         return view;
     }
+
+
 }
