@@ -68,25 +68,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             mapFrag.getMapAsync(this);
         }
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                    MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        //locationManager.requestLocationUpdates("gps", 5000, 0, (android.location.LocationListener) locationListener);
-
-
     }
 
     public void onLocationChanged(Location location) {
@@ -117,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void getNearbyPosts() {
+        final ListView listView = (ListView)findViewById(R.id.listView);
         final LinearLayout linearLayout = new LinearLayout(this);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
 
@@ -136,15 +118,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         try {
                             JSONArray posts = response.getJSONArray("posts");
                             ArrayList<String> post_list = new ArrayList<String>();
-                            //String thread_posts = new String();
+                            final String[] post_ids = new String[posts.length()];
                             for (int i = 1; i < posts.length(); i++) {
                                 JSONObject post_obj = posts.getJSONObject(i);
                                 //thread_posts += post_obj.getString("message") + '\n';
                                 post_list.add(post_obj.getString("message"));
+                                post_ids[i - 1] = post_obj.getString("post_id");
                             }
                             ArrayAdapter adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, post_list);
-                            ListView listView = (ListView) findViewById(R.id.listView);
                             listView.setAdapter(adapter);
+                            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                    Intent intent = new Intent(view.getContext(), ThreadViewActivity.class);
+                                    String post_id = String.valueOf(post_ids[position]);
+                                    intent.putExtra("thread_id", post_id);
+                                    startActivity(intent);
+                                }
+                            });
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -185,15 +175,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         Criteria criteria = new Criteria();
         String bestProvider = locationManager.getBestProvider(criteria, true);
+
         Location location = locationManager.getLastKnownLocation(bestProvider);
         if (location != null) {
             onLocationChanged(location);
         }
         //locationManager.requestLocationUpdates(bestProvider, 20000, 0, (android.location.LocationListener) this);
-        googleMap.addMarker(new MarkerOptions().position(new LatLng(current_location.getLatitude(), current_location.getLongitude())).title("Marker"));
+        //googleMap.addMarker(new MarkerOptions().position(new LatLng(current_location.getLatitude(), current_location.getLongitude())).title("Marker"));
         getNearbyPosts();
     }
-
-
 
 }

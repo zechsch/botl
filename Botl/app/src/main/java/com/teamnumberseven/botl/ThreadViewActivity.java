@@ -76,7 +76,7 @@ public class ThreadViewActivity extends AppCompatActivity {
                             //textView.setText(thread_posts);
                             textView.setText(posts.getJSONObject(0).getString("message"));
                             ArrayAdapter adapter = new ArrayAdapter<String>(ThreadViewActivity.this, android.R.layout.simple_list_item_1, post_list);
-                            ListView listView = (ListView) findViewById(R.id.listView);
+                            ListView listView = (ListView) findViewById(R.id.listViewThread);
                             listView.setAdapter(adapter);
 
 

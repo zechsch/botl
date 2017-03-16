@@ -9,7 +9,7 @@ android:orientation="vertical"
 android:animateLayoutChanges="true"
 tools:context="com.teamnumberseven.botl.MainActivity">
 
-<fragment
+    <fragment
     android:id="@+id/map"
     android:layout_width="match_parent"
     android:layout_height="0dp"
@@ -23,14 +23,14 @@ tools:context="com.teamnumberseven.botl.MainActivity">
     android:layout_weight="0.5"
     android:layout_alignParentLeft="true"
     class="com.teamnumberseven.botl.LiveFeedFragment" />
-    
 
-<!--<com.google.android.gms.maps.MapView
-    android:layout_width="match_parent"
-    android:layout_height="0dp"
-    android:layout_weight=".3"
-    android:id="@+id/mapview"
-    class="com.teamnumberseven.botl.MapFragment"
-    />-->
+
+    <!--<com.google.android.gms.maps.MapView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".3"
+        android:id="@+id/mapview"
+        class="com.teamnumberseven.botl.MapFragment"
+        />-->
 
 </LinearLayout>
