@@ -4,6 +4,7 @@ import android.*;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Point;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -21,6 +22,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -37,7 +39,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
@@ -48,12 +52,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.jar.*;
 
+import static com.teamnumberseven.botl.R.id.omega;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener {
     private LocationManager locationManager;
     private LocationListener locationListener;
     public Location current_location = new Location("");
     GoogleMap mMap;
+    ArrayList<Marker> marker_list;
+    ArrayList<GoogleMap.InfoWindowAdapter> info_window_list;
+
     int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
     int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION;
 
@@ -76,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         LatLng latLng = new LatLng(latitude, longitude);
         current_location.setLatitude(latitude);
         current_location.setLongitude(longitude);
-        mMap.addMarker(new MarkerOptions().position(latLng));
+        mMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
     }
@@ -95,6 +104,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         intent.putExtra("longitude", current_location.getLongitude());
         intent.putExtra("latitude", current_location.getLatitude());
         startActivity(intent);
+    }
+
+
+    public class Coords{
+        double longitude;
+        double latitude;
+
+        Coords(double x, double y){
+            longitude = x;
+            latitude = y;
+        }
     }
 
     public void getNearbyPosts() {
@@ -119,11 +139,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             JSONArray posts = response.getJSONArray("posts");
                             ArrayList<String> post_list = new ArrayList<String>();
                             final String[] post_ids = new String[posts.length()];
+                            ArrayList<Coords> coords_list = new ArrayList<Coords>();
                             for (int i = 1; i < posts.length(); i++) {
                                 JSONObject post_obj = posts.getJSONObject(i);
                                 //thread_posts += post_obj.getString("message") + '\n';
                                 post_list.add(post_obj.getString("message"));
                                 post_ids[i - 1] = post_obj.getString("post_id");
+                                coords_list.add(i-1, new Coords(post_obj.getDouble("longitude"), post_obj.getDouble("latitude")));
                             }
                             ArrayAdapter adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, post_list);
                             listView.setAdapter(adapter);
@@ -135,6 +157,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     startActivity(intent);
                                 }
                             });
+
+
+                            //Populate map with markers and their messages
+                            for (int i = 0; i < coords_list.size(); i++)
+                            {
+
+                                //Log.d("NEW PT", "X: " + coords_list.get(i).longitude + " Y " + coords_list.get(i).latitude + " MESSAGE: " + post_list.get(i));
+                                //googleMap.addMarker(new MarkerOptions().position(new LatLng(current_location.getLatitude(), current_location.getLongitude())).title("Marker"));
+                                Marker m = mMap.addMarker(new MarkerOptions()
+                                               .position(new LatLng(coords_list.get(i).latitude, coords_list.get(i).longitude))
+                                               .title("Post ID: " + post_ids[i])
+                                               .snippet(post_list.get(i)));
+                                //marker_list.add(i,m);
+                                //mMap.setOnMarkerClickListener();
+
+                            }
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -181,8 +219,31 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             onLocationChanged(location);
         }
         //locationManager.requestLocationUpdates(bestProvider, 20000, 0, (android.location.LocationListener) this);
-        //googleMap.addMarker(new MarkerOptions().position(new LatLng(current_location.getLatitude(), current_location.getLongitude())).title("Marker"));
+        //googleMap.addMarker(new MarkerOptions().position(new LatLng(current_location.getLatitude(), current_location.getLongitude())).title("Marker"))
+        mMap.setOnInfoWindowClickListener(this);
+        mMap.setOnMarkerClickListener(this);
         getNearbyPosts();
     }
 
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        //Toast.makeText(this, "Info window clicked",
+        //        Toast.LENGTH_SHORT).show();
+        String s = marker.getTitle();
+        s = s.substring(9);
+        //Log.d("SUBSTRING: ", s);
+        Intent intent = new Intent(getApplicationContext(), ThreadViewActivity.class);
+
+        s = "1";
+        intent.putExtra("thread_id", s);
+        startActivity(intent);
+
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        //Log.d("MARKER CLICKED", "Marco");
+        marker.showInfoWindow();
+        return true;
+    }
 }
