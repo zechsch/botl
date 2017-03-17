@@ -140,12 +140,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             ArrayList<String> post_list = new ArrayList<String>();
                             final String[] post_ids = new String[posts.length()];
                             ArrayList<Coords> coords_list = new ArrayList<Coords>();
-                            for (int i = 1; i < posts.length(); i++) {
+                            for (int i = 0; i < posts.length(); i++) {
                                 JSONObject post_obj = posts.getJSONObject(i);
                                 //thread_posts += post_obj.getString("message") + '\n';
                                 post_list.add(post_obj.getString("message"));
-                                post_ids[i - 1] = post_obj.getString("post_id");
-                                coords_list.add(i-1, new Coords(post_obj.getDouble("longitude"), post_obj.getDouble("latitude")));
+                                post_ids[i] = post_obj.getString("post_id");
+                                coords_list.add(i, new Coords(post_obj.getDouble("longitude"), post_obj.getDouble("latitude")));
                             }
                             ArrayAdapter adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, post_list);
                             listView.setAdapter(adapter);
@@ -153,6 +153,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                                     Intent intent = new Intent(view.getContext(), ThreadViewActivity.class);
                                     String post_id = String.valueOf(post_ids[position]);
+                                    Log.d("SENDING", "ThreadViewActivity this post_id: " + post_id);
                                     intent.putExtra("thread_id", post_id);
                                     startActivity(intent);
                                 }
@@ -160,10 +161,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
                             //Populate map with markers and their messages
+                            Log.d("CORDS LIST SIZE", ""+coords_list.size());
                             for (int i = 0; i < coords_list.size(); i++)
                             {
-
-                                //Log.d("NEW PT", "X: " + coords_list.get(i).longitude + " Y " + coords_list.get(i).latitude + " MESSAGE: " + post_list.get(i));
+                                Log.d("NEW PT", "X: " + coords_list.get(i).longitude + " Y " + coords_list.get(i).latitude + " MESSAGE: " + post_list.get(i));
                                 //googleMap.addMarker(new MarkerOptions().position(new LatLng(current_location.getLatitude(), current_location.getLongitude())).title("Marker"));
                                 Marker m = mMap.addMarker(new MarkerOptions()
                                                .position(new LatLng(coords_list.get(i).latitude, coords_list.get(i).longitude))
@@ -234,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         //Log.d("SUBSTRING: ", s);
         Intent intent = new Intent(getApplicationContext(), ThreadViewActivity.class);
 
-        s = "1";
+        //s = "1";
         intent.putExtra("thread_id", s);
         startActivity(intent);
 
