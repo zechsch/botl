@@ -11,30 +11,57 @@
     tools:context="com.teamnumberseven.botl.ThreadViewActivity">
 
     <Button
-        android:text="@string/reply"
+        android:id="@+id/replybutton"
+        style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/replybutton"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:onClick="goToThreadReply" />
+        android:onClick="goToThreadReply"
+        android:text="@string/reply"
+        android:backgroundTint="@color/colorPrimary"
+        android:layout_below="@+id/textView"
+        android:layout_alignParentEnd="true" />
 
     <ListView
         android:id="@+id/listViewThread"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/replybutton"
-        android:layout_marginTop="21dp"
-        android:listSelector="@android:color/transparent" />
+        android:listSelector="@android:color/transparent"
+        android:layout_below="@+id/button3"
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/textView"
         android:textSize="20sp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:id="@+id/ratingView"
+        android:textSize="18sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/replybutton"
         android:layout_alignBottom="@+id/replybutton"
-        android:layout_alignParentStart="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:text="Down"
+        android:layout_marginEnd="41dp"
+        android:layout_below="@+id/textView"
         android:layout_toStartOf="@+id/replybutton" />
+
+    <Button
+        android:id="@+id/button4"
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:text="Up"
+        android:layout_marginEnd="11dp"
+        android:layout_below="@+id/textView"
+        android:layout_toStartOf="@+id/button3" />
+
 </RelativeLayout>

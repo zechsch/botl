@@ -19,6 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -50,6 +51,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.jar.*;
 
 import static com.teamnumberseven.botl.R.id.omega;
@@ -62,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     GoogleMap mMap;
     ArrayList<Marker> marker_list;
     ArrayList<GoogleMap.InfoWindowAdapter> info_window_list;
+    HashMap<Marker, String> markerMap = new HashMap<Marker, String>();
 
     int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
     int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION;
@@ -71,11 +75,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (mMap == null) {
-            SupportMapFragment mapFrag =
-                    (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        //if (mMap == null) {
+            SupportMapFragment mapFrag = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
             mapFrag.getMapAsync(this);
-        }
+        //}
 
     }
 
@@ -137,18 +140,27 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     public void onResponse(JSONObject response) {
                         try {
                             JSONArray posts = response.getJSONArray("posts");
-                            ArrayList<String> post_list = new ArrayList<String>();
+                            List<Map<String, String>> post_list = new ArrayList<Map<String, String>>();
+                            final String[] post_titles = new String[posts.length()];
                             final String[] post_ids = new String[posts.length()];
+                            final String[] post_ratings = new String[posts.length()];
                             ArrayList<Coords> coords_list = new ArrayList<Coords>();
                             for (int i = 0; i < posts.length(); i++) {
                                 JSONObject post_obj = posts.getJSONObject(i);
                                 //thread_posts += post_obj.getString("message") + '\n';
-                                post_list.add(post_obj.getString("message"));
+                                Map<String, String> post = new HashMap<String, String>(2);
+                                post.put("title", post_obj.getString("message"));
+                                post.put("rating", "Rating: " + post_obj.getString("rating"));
+                                post_list.add(post);
+                                post_titles[i] = post_obj.getString("message");
                                 post_ids[i] = post_obj.getString("post_id");
+                                post_ratings[i] = post_obj.getString("rating");
                                 coords_list.add(i, new Coords(post_obj.getDouble("longitude"), post_obj.getDouble("latitude")));
                             }
-                            ArrayAdapter adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, post_list);
+                            //ArrayAdapter adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, post_list);
+                            SimpleAdapter adapter = new SimpleAdapter(MainActivity.this, post_list, android.R.layout.simple_list_item_2, new String[] {"title", "rating"}, new int[] {android.R.id.text1, android.R.id.text2});
                             listView.setAdapter(adapter);
+                            //listView.setAdapter(adapter2);
                             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                                     Intent intent = new Intent(view.getContext(), ThreadViewActivity.class);
@@ -168,8 +180,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 //googleMap.addMarker(new MarkerOptions().position(new LatLng(current_location.getLatitude(), current_location.getLongitude())).title("Marker"));
                                 Marker m = mMap.addMarker(new MarkerOptions()
                                                .position(new LatLng(coords_list.get(i).latitude, coords_list.get(i).longitude))
-                                               .title("Post ID: " + post_ids[i])
-                                               .snippet(post_list.get(i)));
+                                               .snippet("Post ID: " + post_ids[i] + " Rating: " + post_ratings[i])
+                                               .title(post_titles[i]));
+                                markerMap.put(m, post_ids[i]);
                                 //marker_list.add(i,m);
                                 //mMap.setOnMarkerClickListener();
 
@@ -200,7 +213,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         };
         mMap = googleMap;
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        /* if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -209,7 +222,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
             return;
+        } */
+        int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_LOCATION);
         }
+
         googleMap.setMyLocationEnabled(true);
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         Criteria criteria = new Criteria();
@@ -230,8 +248,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onInfoWindowClick(Marker marker) {
         //Toast.makeText(this, "Info window clicked",
         //        Toast.LENGTH_SHORT).show();
-        String s = marker.getTitle();
-        s = s.substring(9);
+        /*String s = marker.getTitle();
+        s = s.substring(9);*/
+        String s = markerMap.get(marker);
         //Log.d("SUBSTRING: ", s);
         Intent intent = new Intent(getApplicationContext(), ThreadViewActivity.class);
 

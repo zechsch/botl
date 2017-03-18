@@ -36,6 +36,7 @@ public class ThreadViewActivity extends AppCompatActivity {
         Intent intent = getIntent();
         thread_id = intent.getStringExtra("thread_id");
         final TextView textView = (TextView) findViewById(R.id.textView);
+        final TextView ratingView = (TextView) findViewById(R.id.ratingView);
         //textView.setText(thread_id);
 
         /*
@@ -75,6 +76,7 @@ public class ThreadViewActivity extends AppCompatActivity {
                             }
                             //textView.setText(thread_posts);
                             textView.setText(posts.getJSONObject(0).getString("message"));
+                            ratingView.setText("Rating: " + posts.getJSONObject(0).getString("rating"));
                             ArrayAdapter adapter = new ArrayAdapter<String>(ThreadViewActivity.this, android.R.layout.simple_list_item_1, post_list);
                             ListView listView = (ListView) findViewById(R.id.listViewThread);
                             listView.setAdapter(adapter);
