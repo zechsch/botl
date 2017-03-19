@@ -7,7 +7,7 @@ A location based social messaging service. Created by:
 + [Zechariah Schneider](zechsch@umich.edu) 
 + [Joshua Spigelman](jlspige@umich.edu) 
 
-Setup:
+Setup:\n
 Make sure to use an updated Android Studio (version 2.3)
 1. Open the botl App on Android Studio.
 2. Install the volley library from the google github
