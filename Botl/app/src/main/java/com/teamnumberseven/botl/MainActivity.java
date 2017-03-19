@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         params.put("latitude", Double.toString(current_location.getLatitude()));
         params.put("longitude", Double.toString(current_location.getLongitude()));
         params.put("distance", "1000");
-        params.put("num_posts", "10");
+        params.put("num_posts", "50");
 
         JsonObjectRequest req = new JsonObjectRequest(URL, new JSONObject(params),
                 new Response.Listener<JSONObject>() {
