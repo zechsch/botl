@@ -88,7 +88,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         LatLng latLng = new LatLng(latitude, longitude);
         current_location.setLatitude(latitude);
         current_location.setLongitude(longitude);
-        mMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+        mMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.current_location_marker)));
+        //m.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.botl_map_marker3));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
     }
@@ -182,6 +183,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                .position(new LatLng(coords_list.get(i).latitude, coords_list.get(i).longitude))
                                                .snippet("Post ID: " + post_ids[i] + " Rating: " + post_ratings[i])
                                                .title(post_titles[i]));
+                                m.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.botl_map_marker3));
                                 markerMap.put(m, post_ids[i]);
                                 //marker_list.add(i,m);
                                 //mMap.setOnMarkerClickListener();
