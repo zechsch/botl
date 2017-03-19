@@ -110,6 +110,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         startActivity(intent);
     }
 
+    public void getNewPosts(View v) {
+        getNearbyPosts();
+    }
+
 
     public class Coords{
         double longitude;
