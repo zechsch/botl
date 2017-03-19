@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         LatLng latLng = new LatLng(latitude, longitude);
         current_location.setLatitude(latitude);
         current_location.setLongitude(longitude);
-        mMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.current_location_marker)));
+        mMap.addMarker(new MarkerOptions().position(latLng).anchor(0.5f,0.5f).icon(BitmapDescriptorFactory.fromResource(R.drawable.current_location_marker)));
         //m.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.botl_map_marker3));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
