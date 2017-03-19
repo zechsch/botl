@@ -11,6 +11,7 @@ Setup: <br />
 Make sure to use an updated Android Studio (version 2.3)
 1. Open the botl App on Android Studio.
 2. Install the volley library from the google github
-3. Click file -> import module and import the volley file just downloaded.
-4. Build the app and run it on the emulator (We use Nexus 6 API 24)
-5. Run the emulator.
+3. Delete the current volley folder in the application.
+4. Click file -> new -> import module and import the volley file just downloaded.
+5. Build the app and run it on the emulator (We use Nexus 6 API 24)
+6. Run the emulator.
