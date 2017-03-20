@@ -66,6 +66,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     ArrayList<Marker> marker_list;
     ArrayList<GoogleMap.InfoWindowAdapter> info_window_list;
     HashMap<Marker, String> markerMap = new HashMap<Marker, String>();
+    double currentLatitude = 0;
+    double currentLongitude = 0;
 
     int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
     int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION;
@@ -88,6 +90,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         LatLng latLng = new LatLng(latitude, longitude);
         current_location.setLatitude(latitude);
         current_location.setLongitude(longitude);
+        currentLatitude = latitude;
+        currentLongitude = longitude;
         mMap.addMarker(new MarkerOptions().position(latLng).anchor(0.5f,0.5f).icon(BitmapDescriptorFactory.fromResource(R.drawable.current_location_marker)));
         //m.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.botl_map_marker3));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
@@ -111,6 +115,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void getNewPosts(View v) {
+        mMap.clear();
+        double latitude = currentLatitude;
+        double longitude = currentLongitude;
+        LatLng latLng = new LatLng(latitude, longitude);
+        current_location.setLatitude(latitude);
+        current_location.setLongitude(longitude);
+        mMap.addMarker(new MarkerOptions().position(latLng).anchor(0.5f,0.5f).icon(BitmapDescriptorFactory.fromResource(R.drawable.current_location_marker)));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(mMap.getCameraPosition().zoom));
         getNearbyPosts();
     }
 
