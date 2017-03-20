@@ -16,11 +16,11 @@ Make sure to use an updated Android Studio (version 2.3)
 5. Build the app and run it on the emulator (We use Nexus 6 API 24)
 6. Run the emulator.
 
-Front-end Features:<br/>
--Post new messages by clicking the + button. <br/>
--A marker will appear at the user's latitude/longitude location where the message was posted. <br/>
--Click on a message on the live feed or the info window of a marker on the map to view the message, view the replies to the message, rate the message, and to reply to the message. <br/>
--Custom markers to reveal messages (Can change to other images for sponsored messages)
+Front-end Features:
++ Post new messages by clicking the + button.
++ A marker will appear at the user's latitude/longitude location where the message was posted. 
++ Click on a message on the live feed or the info window of a marker on the map to view the message, view the replies to the message, rate the message, and to reply to the message. 
++ Custom markers to reveal messages (Can change to other images for sponsored messages)
 
 Parameters: <br/>
--Currently 50 messages within 1000 miles of the user's location will show up (Debugging purposes)
++ Currently 50 messages within 1000 miles of the user's location will show up (Debugging purposes)
