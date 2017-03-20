@@ -31,5 +31,4 @@ A location based social messaging service. Created by:
 
 # Current Bugs:
 + Needs to update user location on the map after sending in new coords.
-+ Refresh button needs to clear markers
 + Multiple posts at the same time
