@@ -28,3 +28,8 @@ A location based social messaging service. Created by:
 # Parameters:
 + Currently 50 messages within 1000 miles of the user's location will show up (Debugging purposes)
 + No messages expire for debugging purposes (although we plan to have messages expire after 24 hours).
+
+# Current Bugs:
++ Needs to update user location on the map after sending in new coords.
++ Refresh button needs to clear markers
++ Multiple posts at the same time
