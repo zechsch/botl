@@ -32,3 +32,4 @@ A location based social messaging service. Created by:
 # Current Bugs:
 + Needs to update user location on the map after sending in new coords.
 + Multiple posts at the same time
++ App initially crashes on the phone until user allows location
