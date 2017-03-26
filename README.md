@@ -10,7 +10,7 @@ A location based social messaging service. Created by:
 # Setup:
 0. Make sure to use an updated Android Studio (version 2.3)
 1. Open the botl App on Android Studio.
-2. Install the volley library from the google github
+2. Install the volley library from the google github (https://github.com/google/volley)
 3. Delete the current volley folder in the application.
 4. Click file -> new -> import module and import the volley file just downloaded.
 5. Build the app.
