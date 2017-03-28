@@ -172,9 +172,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     }
 
     public void goToNewPost(View v) {
+        Log.d("PRESSED PLUS BUTTON", "go to new post");
         Intent intent = new Intent(v.getContext(), NewPost.class);
-        intent.putExtra("longitude", current_location.getLongitude());
-        intent.putExtra("latitude", current_location.getLatitude());
+        intent.putExtra("longitude", mLastLocation.getLongitude());
+        intent.putExtra("latitude", mLastLocation.getLatitude());
         startActivity(intent);
     }
 
