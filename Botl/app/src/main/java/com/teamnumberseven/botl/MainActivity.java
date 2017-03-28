@@ -153,10 +153,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(16), 1, null);
 
-        /*//Stop location updates
+        //Stop location updates
         if(mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-        }*/
+        }
 
         mMap.clear();
         getNearbyPosts();
