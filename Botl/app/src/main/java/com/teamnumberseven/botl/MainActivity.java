@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     HashMap<Marker, String> markerMap = new HashMap<Marker, String>();
     double currentLatitude = 0;
     double currentLongitude = 0;
+    boolean locationSet = false;
 
     int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
     int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION;
@@ -149,17 +150,22 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
         mCurrLocationMarker = mMap.addMarker(markerOptions);*/
 
-        //Move map camera
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(16), 1, null);
-
-        //Stop location updates
-        if(mGoogleApiClient != null) {
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        if(!locationSet) {
+            //Move map camera
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(16), 1, null);
+            locationSet = true;
+            mMap.clear();
+            getNearbyPosts();
         }
 
-        mMap.clear();
-        getNearbyPosts();
+
+        //Stop location updates
+        /*if(mGoogleApiClient != null) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        }*/
+
+
     }
 
     // function to go to the thread associated with what is pressed in the feed
@@ -172,14 +178,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     }
 
     public void goToNewPost(View v) {
+        Log.d("PRESSED PLUS BUTTON", "go to new post");
         Intent intent = new Intent(v.getContext(), NewPost.class);
-        intent.putExtra("longitude", current_location.getLongitude());
-        intent.putExtra("latitude", current_location.getLatitude());
+        intent.putExtra("longitude", mLastLocation.getLongitude());
+        intent.putExtra("latitude", mLastLocation.getLatitude());
         startActivity(intent);
     }
 
     public void getNewPosts(View v) {
-        mMap.clear();
+        /*mMap.clear();
         double latitude = currentLatitude;
         double longitude = currentLongitude;
         LatLng latLng = new LatLng(latitude, longitude);
@@ -188,7 +195,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         mMap.addMarker(new MarkerOptions().position(latLng).anchor(0.5f,0.5f).icon(BitmapDescriptorFactory.fromResource(R.drawable.current_location_marker)));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(mMap.getCameraPosition().zoom));
-        getNearbyPosts();
+        getNearbyPosts();*/
+        if(mLastLocation != null) {
+            mMap.clear();
+            getNearbyPosts();
+        }
     }
 
 
