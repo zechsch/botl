@@ -24,6 +24,7 @@ A location based social messaging service. Created by:
 + Click on a message on the live feed or the info window of a marker on the map to view the message, view the replies to the message, rate the message, and to reply to the message. 
 + Custom markers to reveal messages (Can change to other images for sponsored messages)
 + Refresh button to update new messages/replies/ratings.
++ Hold onto a live feed message to make map look at the message.
 
 # Parameters:
 + Currently 50 messages within 1000 miles of the user's location will show up (Debugging purposes)
