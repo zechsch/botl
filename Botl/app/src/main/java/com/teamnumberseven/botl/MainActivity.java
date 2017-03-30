@@ -11,9 +11,13 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GestureDetectorCompat;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -42,6 +46,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -56,27 +61,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.jar.*;
 
-import static com.teamnumberseven.botl.R.id.omega;
+import static com.teamnumberseven.botl.R.id.feed;
 
 
-public class MainActivity extends AppCompatActivity implements LocationListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener {
-    private LocationManager locationManager;
-    private LocationListener locationListener;
+public class MainActivity extends AppCompatActivity implements LocationListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener{
     public Location current_location = new Location("");
     GoogleMap mMap;
     GoogleApiClient mGoogleApiClient;
     LocationRequest mLocationRequest;
     Location mLastLocation;
     Marker mCurrLocationMarker;
-    ArrayList<Marker> marker_list;
-    ArrayList<GoogleMap.InfoWindowAdapter> info_window_list;
     HashMap<Marker, String> markerMap = new HashMap<Marker, String>();
-    double currentLatitude = 0;
-    double currentLongitude = 0;
+    HashMap<String, Marker> idToMarker = new HashMap<String, Marker>();
     boolean locationSet = false;
+    private GestureDetectorCompat mDetector;
 
-    int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
-    int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION;
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     public boolean checkLocationPermission() {
@@ -94,9 +93,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //list.setAdapter(new Array)
+
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkLocationPermission();
         }
+
+        mDetector = new GestureDetectorCompat(this, new MyGestureListener());
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -263,6 +266,22 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                                     startActivity(intent);
                                 }
                             });
+                            listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
+                                public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id){
+                                    String post_id = String.valueOf(post_ids[position]);
+                                    //Log.d("FXN", "LONG CLICK ITEM : " + post_id);
+                                    Marker m = idToMarker.get(post_id);
+                                    onMarkerClick(m);
+                                    LatLng loc = m.getPosition();
+                                    //mMap.moveCamera(CameraUpdateFactory.newLatLng(loc));
+                                    CameraPosition cameraPosition = new CameraPosition.Builder()
+                                            .target(loc)
+                                            .zoom(16)
+                                            .build();
+                                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 400, null);
+                                    return true;
+                                }
+                            });
 
 
                             //Populate map with markers and their messages
@@ -277,6 +296,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                                                .title(post_titles[i]));
                                 m.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.botl_map_marker3));
                                 markerMap.put(m, post_ids[i]);
+                                idToMarker.put(post_ids[i], m);
+
                                 //marker_list.add(i,m);
                                 //mMap.setOnMarkerClickListener();
 
@@ -376,5 +397,70 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         //Log.d("MARKER CLICKED", "Marco");
         marker.showInfoWindow();
         return true;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        this.mDetector.onTouchEvent(event);
+        // Be sure to call the superclass implementation
+        return super.onTouchEvent(event);
+    }
+
+    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+        //Swipe Gestures
+        private static final int SWIPE_THRESHOLD = 100;
+        private static final int SWIPE_VELOCITY_THRESHOLD = 100;
+
+        private static final String DEBUG_TAG = "FXN Gestures";
+
+        @Override
+        public boolean onFling(MotionEvent event1, MotionEvent event2,
+                               float velocityX, float velocityY) {
+            boolean result = false;
+            try {
+                float diffY = event2.getY() - event1.getY();
+                float diffX = event2.getX() - event1.getX();
+                if (Math.abs(diffX) > Math.abs(diffY)) {
+                    if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                        if (diffX > 0) {
+                            onSwipeRight();
+                        } else {
+                            onSwipeLeft();
+                        }
+                        result = true;
+                    }
+                }
+                else if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
+                    if (diffY > 0) {
+                        onSwipeBottom();
+                    } else {
+                        onSwipeTop();
+                    }
+                    result = true;
+                }
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+            return result;
+        }
+
+        //@Override
+        //public void onLongPress(MotionEvent event) {
+        //    Log.d(DEBUG_TAG, "onLongPress: ");
+        //    Toast.makeText(list.getItem())
+        //}
+
+        public void onSwipeRight() {
+            Log.d("FXN", "SWIPE RIGHT");
+        }
+        public void onSwipeLeft() {
+            Log.d("FXN", "SWIPE LEFT");
+        }
+        public void onSwipeTop() {
+            Log.d("FXN", "SWIPE TOP");
+        }
+        public void onSwipeBottom() {
+            Log.d("FXN", "SWIPE BOTTOM");
+        }
     }
 }

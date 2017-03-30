@@ -16,8 +16,8 @@ tools:context="com.teamnumberseven.botl.MainActivity">
     android:layout_weight="0.5"
     class="com.google.android.gms.maps.SupportMapFragment"/>
 
-<fragment
-    android:id="@+id/omega"
+    <fragment
+    android:id="@+id/feed"
     android:layout_width="match_parent"
     android:layout_height="0dp"
     android:layout_weight="0.5"
