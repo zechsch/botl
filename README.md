@@ -24,6 +24,7 @@ A location based social messaging service. Created by:
 + Click on a message on the live feed or the info window of a marker on the map to view the message, view the replies to the message, rate the message, and to reply to the message. 
 + Custom markers to reveal messages (Can change to other images for sponsored messages)
 + Refresh button to update new messages/replies/ratings.
++ Hold onto a live feed message to make map look at the message.
 
 # Parameters:
 + Currently 50 messages within 1000 miles of the user's location will show up (Debugging purposes)
@@ -33,3 +34,4 @@ A location based social messaging service. Created by:
 + Needs to update user location on the map after sending in new coords.
 + Multiple posts at the same time
 + App initially crashes on the phone until user allows location
++ App doesn't work correctly when the user opens the app for the first time, (mainly due to the answer for the permissions). I was thinking if the user hasn't already granted permission we bring them to a splash screen that asks for their permission, otherwise just have that splash screen bring them directly to our main activity.
