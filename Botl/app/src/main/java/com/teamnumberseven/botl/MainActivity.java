@@ -96,6 +96,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         //list.setAdapter(new Array)
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            //Log.d("FXN", "LOC WAS DISABLED, NOW ENABLED");
+            //while( !checkLocationPermission())
+            //{
+            //    Log.d("FXN", "CHECKING PERMISSION CURRENTLY FALSE");
+            //};
             checkLocationPermission();
         }
 
@@ -108,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     @Override
     public void onConnected(Bundle b) {
         mLocationRequest = new LocationRequest();
+        Log.d("FXN", "CONNECTED");
         mLocationRequest.setInterval(1000);
         mLocationRequest.setFastestInterval(1000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
