@@ -34,3 +34,4 @@ A location based social messaging service. Created by:
 + Needs to update user location on the map after sending in new coords.
 + Multiple posts at the same time
 + App initially crashes on the phone until user allows location
++ App doesn't work correctly when the user opens the app for the first time, (mainly due to the answer for the permissions). I was thinking if the user hasn't already granted permission we bring them to a splash screen that asks for their permission, otherwise just have that splash screen bring them directly to our main activity.
