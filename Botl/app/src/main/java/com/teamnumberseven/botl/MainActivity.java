@@ -458,6 +458,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
         public void onSwipeRight() {
             Log.d("FXN", "SWIPE RIGHT");
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+
         }
         public void onSwipeLeft() {
             Log.d("FXN", "SWIPE LEFT");
