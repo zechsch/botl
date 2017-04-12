@@ -9,6 +9,7 @@
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/wallet_dim_foreground_inverse_disabled_holo_dark"
         android:visibility="visible">
 
         <Button
@@ -16,17 +17,29 @@
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="2dp"
             android:backgroundTint="@color/colorPrimary"
             android:elevation="2dp"
             android:onClick="goToNewPost"
             android:text="@string/PlusSign"
             android:textSize="24sp"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            android:layout_marginRight="8dp"
-            android:layout_marginTop="2dp" />
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <Button
+        <TextView
+            android:id="@+id/profileChevron"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="18dp"
+            android:layout_marginTop="4dp"
+            android:text="@string/icon_chevron_right"
+            android:textColor="@color/common_google_signin_btn_text_dark_default"
+            android:textSize="40sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!--<Button
             android:id="@+id/refreshButton"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
@@ -37,7 +50,7 @@
             android:layout_marginLeft="8dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="2dp" />
+            android:layout_marginTop="2dp" />-->
     </android.support.constraint.ConstraintLayout>
 
     <ListView

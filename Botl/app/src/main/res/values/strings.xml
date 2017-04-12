@@ -30,4 +30,8 @@
     <string name="prompt_email">Email</string>
     <string name="title_activity_registration_verification">Registration Verification</string>
     <string name="confirm">Confirm</string>
+
+    <!-- font awesome -->
+    <string name="icon_refresh">&#xf021;</string>
+    <string name="icon_chevron_right">&#xf105;</string>
 </resources>

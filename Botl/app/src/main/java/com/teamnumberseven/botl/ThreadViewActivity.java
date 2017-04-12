@@ -79,7 +79,12 @@ public class ThreadViewActivity extends AppCompatActivity {
                             }
                             //textView.setText(thread_posts);
                             textView.setText(posts.getJSONObject(0).getString("message"));
-                            ratingView.setText("Rating: " + posts.getJSONObject(0).getString("rating"));
+                            if(Integer.parseInt(posts.getJSONObject(0).getString("rating")) == 1) {
+                                ratingView.setText(posts.getJSONObject(0).getString("rating") + " point");
+                            }
+                            else {
+                                ratingView.setText(posts.getJSONObject(0).getString("rating") + " points");
+                            }
                             rating = Integer.parseInt(posts.getJSONObject(0).getString("rating"));
                             ArrayAdapter adapter = new ArrayAdapter<String>(ThreadViewActivity.this, android.R.layout.simple_list_item_1, post_list);
                             ListView listView = (ListView) findViewById(R.id.listViewThread);
@@ -138,7 +143,12 @@ public class ThreadViewActivity extends AppCompatActivity {
                             if(hasVoted) {
                                 rating++;
                             }
-                            ratingView.setText("Rating: " + rating);
+                            if(rating == 1) {
+                                ratingView.setText(rating + " point");
+                            }
+                            else {
+                                ratingView.setText(rating + " points");
+                            }
 
                             Button upButton = (Button) findViewById(R.id.upButton);
                             upButton.setEnabled(false);
@@ -181,7 +191,12 @@ public class ThreadViewActivity extends AppCompatActivity {
                             if(hasVoted) {
                                 rating--;
                             }
-                            ratingView.setText("Rating: " + rating);
+                            if(rating == 1) {
+                                ratingView.setText(rating + " point");
+                            }
+                            else {
+                                ratingView.setText(rating + " points");
+                            }
 
                             Button upButton = (Button) findViewById(R.id.upButton);
                             upButton.setEnabled(true);

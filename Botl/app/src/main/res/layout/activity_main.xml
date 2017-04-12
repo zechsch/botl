@@ -9,20 +9,39 @@ android:orientation="vertical"
 android:animateLayoutChanges="true"
 tools:context="com.teamnumberseven.botl.MainActivity">
 
-    <fragment
-    android:id="@+id/map"
-    android:layout_width="match_parent"
-    android:layout_height="0dp"
-    android:layout_weight="0.5"
-    class="com.google.android.gms.maps.SupportMapFragment"/>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.5">
+
+        <Button
+            android:id="@+id/refreshButton"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="2dp"
+            android:backgroundTint="@color/colorPrimary"
+            android:onClick="getNewPosts"
+            android:text="@string/icon_refresh"
+            android:textSize="18sp" />
+
+        <fragment
+            android:id="@+id/map"
+            class="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5" />
+
+    </RelativeLayout>
 
     <fragment
-    android:id="@+id/feed"
-    android:layout_width="match_parent"
-    android:layout_height="0dp"
-    android:layout_weight="0.5"
-    android:layout_alignParentLeft="true"
-    class="com.teamnumberseven.botl.LiveFeedFragment" />
+        android:id="@+id/feed"
+        class="com.teamnumberseven.botl.LiveFeedFragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_alignParentLeft="true"
+        android:layout_weight="0.5" />
 
 
     <!--<com.google.android.gms.maps.MapView

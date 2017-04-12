@@ -5,6 +5,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
+import android.graphics.Typeface;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -62,6 +63,7 @@ import java.util.Map;
 import java.util.jar.*;
 
 import static com.teamnumberseven.botl.R.id.feed;
+import static com.teamnumberseven.botl.R.id.textView;
 
 
 public class MainActivity extends AppCompatActivity implements LocationListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener{
@@ -94,6 +96,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         setContentView(R.layout.activity_main);
 
         //list.setAdapter(new Array)
+
+        Typeface fontAwesome = Typeface.createFromAsset(getAssets(), "fontawesome-webfont.ttf");
+        Button refreshButton = (Button)findViewById(R.id.refreshButton);
+        refreshButton.setTypeface(fontAwesome);
+        TextView profile_chevron = (TextView)findViewById(R.id.profileChevron);
+        profile_chevron.setTypeface(fontAwesome);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             //Log.d("FXN", "LOC WAS DISABLED, NOW ENABLED");
@@ -187,11 +195,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     }
 
     public void goToNewPost(View v) {
-        Log.d("PRESSED PLUS BUTTON", "go to new post");
-        Intent intent = new Intent(v.getContext(), NewPost.class);
-        intent.putExtra("longitude", mLastLocation.getLongitude());
-        intent.putExtra("latitude", mLastLocation.getLatitude());
-        startActivity(intent);
+        if(mLastLocation != null ) {
+            Log.d("PRESSED PLUS BUTTON", "go to new post");
+            Intent intent = new Intent(v.getContext(), NewPost.class);
+            intent.putExtra("longitude", mLastLocation.getLongitude());
+            intent.putExtra("latitude", mLastLocation.getLatitude());
+            startActivity(intent);
+        }
     }
 
     public void getNewPosts(View v) {
@@ -252,7 +262,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                                 //thread_posts += post_obj.getString("message") + '\n';
                                 Map<String, String> post = new HashMap<String, String>(2);
                                 post.put("title", post_obj.getString("message"));
-                                post.put("rating", "Rating: " + post_obj.getString("rating"));
+                                if(Integer.parseInt(post_obj.getString("rating")) == 1) {
+                                    post.put("rating", post_obj.getString("rating") + " point");
+                                }
+                                else {
+                                    post.put("rating", post_obj.getString("rating") + " points");
+                                }
                                 post_list.add(post);
                                 post_titles[i] = post_obj.getString("message");
                                 post_ids[i] = post_obj.getString("post_id");
@@ -282,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                                     //mMap.moveCamera(CameraUpdateFactory.newLatLng(loc));
                                     CameraPosition cameraPosition = new CameraPosition.Builder()
                                             .target(loc)
-                                            .zoom(16)
+                                            .zoom(mMap.getCameraPosition().zoom)
                                             .build();
                                     mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 400, null);
                                     return true;
