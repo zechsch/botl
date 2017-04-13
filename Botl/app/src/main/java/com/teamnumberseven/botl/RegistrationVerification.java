@@ -116,6 +116,13 @@ public class RegistrationVerification extends AppCompatActivity {
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
+
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        overridePendingTransition(R.animator.enter_from_login, R.animator.exit_from_login);
+    }
+
     private void attemptLogin() {
         if (mAuthTask != null) {
             return;
@@ -238,6 +245,7 @@ public class RegistrationVerification extends AppCompatActivity {
                                 Log.d("RESP:" , response.toString(4));
                                 Intent intent = new Intent(RegistrationVerification.this, MainActivity.class);
                                 startActivity(intent);
+                                overridePendingTransition(R.animator.enter_from_login, R.animator.exit_from_login);
                             }
                             catch (JSONException e) {
                                 e.printStackTrace();
