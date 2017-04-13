@@ -7,8 +7,10 @@ import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -34,6 +36,8 @@ public class ThreadViewActivity extends AppCompatActivity {
     int rating = 0;
     int user_rating = 0;
     Boolean hasVoted = false;
+    Boolean reply_visible = false;
+    ArrayList<String> post_list = new ArrayList<String>();
 
     @Override
     public void onBackPressed(){
@@ -81,7 +85,6 @@ public class ThreadViewActivity extends AppCompatActivity {
                     public void onResponse(JSONObject response) {
                         try {
                             JSONArray posts = response.getJSONArray("thread");
-                            ArrayList<String> post_list = new ArrayList<String>();
                             //String thread_posts = new String();
                             for(int i = 1; i < posts.length(); i++) {
                                 JSONObject post_obj = posts.getJSONObject(i);
@@ -144,9 +147,82 @@ public class ThreadViewActivity extends AppCompatActivity {
     }
 
     public void goToThreadReply(View view) {
-        Intent intent = new Intent(view.getContext(), ThreadReplyActivity.class);
+        /*Intent intent = new Intent(view.getContext(), ThreadReplyActivity.class);
         intent.putExtra("thread_id", thread_id);
-        startActivity(intent);
+        startActivity(intent);*/
+        Button reply_button = (Button) findViewById(R.id.replybutton);
+        EditText reply_entry = (EditText) findViewById(R.id.reply_entry);
+        Button send_button = (Button) findViewById(R.id.sendbutton);
+        if(reply_visible == false) {
+            reply_visible = true;
+            reply_button.setText("Cancel");
+            reply_entry.setVisibility(View.VISIBLE);
+            send_button.setVisibility(View.VISIBLE);
+        }
+        else {
+            reply_visible = false;
+            reply_button.setText("Reply");
+            reply_entry.setVisibility(View.GONE);
+            send_button.setVisibility(View.GONE);
+            reply_entry.setText("");
+
+            // hide keyboard
+            InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
+    }
+
+    public void sendReply(View view) {
+        // hide keyboard
+        InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
+        // change visibility of buttons and text area
+        reply_visible = false;
+        Button reply_button = (Button) findViewById(R.id.replybutton);
+        EditText reply_entry = (EditText) findViewById(R.id.reply_entry);
+        Button send_button = (Button) findViewById(R.id.sendbutton);
+        reply_button.setText("Reply");
+        reply_entry.setVisibility(View.GONE);
+        send_button.setVisibility(View.GONE);
+
+        // add response to current view
+        final LinearLayout linearLayout = new LinearLayout(this);
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
+        post_list.add(reply_entry.getText().toString());
+        ArrayAdapter adapter = new ArrayAdapter<String>(ThreadViewActivity.this, android.R.layout.simple_list_item_1, post_list);
+        ListView listView = (ListView) findViewById(R.id.listViewThread);
+        listView.setAdapter(adapter);
+
+        // send response to API
+        final String URL = "http://bttl.herokuapp.com/api/reply";
+        RequestQueue queue = Volley.newRequestQueue(this);
+        HashMap<String,String> params = new HashMap<String,String>();
+        params.put("thread", thread_id);
+        params.put("message", reply_entry.getText().toString());
+        params.put("user_id", "-1");
+
+        JsonObjectRequest req = new JsonObjectRequest(URL, new JSONObject(params),
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            VolleyLog.v("Response:%n %s", response.toString(4));
+                        }
+                        catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.e("Error: ", error.getMessage());
+            }
+        });
+        queue.add(req);
+        queue.start();
+
+        reply_entry.setText("");
     }
 
     public void upVote(final View view) {
