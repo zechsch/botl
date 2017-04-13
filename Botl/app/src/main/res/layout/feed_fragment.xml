@@ -22,7 +22,7 @@
             android:backgroundTint="@color/colorPrimary"
             android:elevation="2dp"
             android:onClick="goToNewPost"
-            android:text="@string/PlusSign"
+            android:text="+"
             android:textSize="24sp"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

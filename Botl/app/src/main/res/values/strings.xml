@@ -34,4 +34,5 @@
     <!-- font awesome -->
     <string name="icon_refresh">&#xf021;</string>
     <string name="icon_chevron_right">&#xf105;</string>
+    <string name="icon_plus">&#xf067;</string>
 </resources>

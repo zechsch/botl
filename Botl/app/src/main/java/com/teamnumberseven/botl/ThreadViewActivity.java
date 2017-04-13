@@ -1,6 +1,9 @@
 package com.teamnumberseven.botl;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -9,6 +12,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -28,7 +32,10 @@ public class ThreadViewActivity extends AppCompatActivity {
 
     String thread_id = new String();
     int rating = 0;
-    boolean hasVoted = false;
+    int user_rating = 0;
+    Boolean hasVoted = false;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +121,22 @@ public class ThreadViewActivity extends AppCompatActivity {
                 });
         queue.add(req);
         queue.start();
+
+        // get previous ranking if there is any and modify buttons accordingly
+        SharedPreferences user_ratings = getSharedPreferences("user_ratings", Context.MODE_PRIVATE);
+        user_rating = user_ratings.getInt(thread_id, 0);
+        if(user_rating == 1) {
+            ToggleButton upButton = (ToggleButton) findViewById(R.id.upButton);
+            //upButton.setBackgroundColor(Color.parseColor("#f4ad42"));
+            //upButton.setTextColor(Color.WHITE);
+            upButton.setChecked(true);
+        }
+        else if (user_rating == -1) {
+            ToggleButton downButton = (ToggleButton) findViewById(R.id.downButton);
+            //downButton.setBackgroundColor(Color.BLUE);
+            //downButton.setTextColor(Color.WHITE);
+            downButton.setChecked(true);
+        }
     }
 
     public void goToThreadReply(View view) {
@@ -123,11 +146,45 @@ public class ThreadViewActivity extends AppCompatActivity {
     }
 
     public void upVote(final View view) {
+        String rate_string = "up";
+        boolean twice = false;
+
+        if(user_rating == 1) {
+            user_rating = 0;
+            rating--;
+            rate_string = "down";
+        }
+        else if(user_rating == 0) {
+            user_rating = 1;
+            rating++;
+        }
+        else if(user_rating == -1) {
+            user_rating = 1;
+            rating += 2;
+            twice = true;
+            ToggleButton downButton = (ToggleButton) findViewById(R.id.downButton);
+            downButton.setChecked(false);
+        }
+
+        TextView ratingView = (TextView) findViewById(R.id.ratingView);
+        if(rating == 1) {
+            ratingView.setText(rating + " point");
+        }
+        else {
+            ratingView.setText(rating + " points");
+        }
+
+        SharedPreferences user_ratings = getSharedPreferences("user_ratings", Context.MODE_PRIVATE);
+        // key is post id, 0 means not voted, 1 means upvoted, -1 means downvoted
+        SharedPreferences.Editor editor = user_ratings.edit();
+        editor.putInt(thread_id, user_rating);
+        editor.commit();
+
         final String URL = "http://bttl.herokuapp.com/api/rate_post";
         RequestQueue queue = Volley.newRequestQueue(this);
         HashMap<String,String> params = new HashMap<String,String>();
         params.put("post", thread_id);
-        params.put("vote", "up");
+        params.put("vote", rate_string);
 
         JsonObjectRequest req = new JsonObjectRequest(URL, new JSONObject(params),
                 new Response.Listener<JSONObject>() {
@@ -135,26 +192,6 @@ public class ThreadViewActivity extends AppCompatActivity {
                     public void onResponse(JSONObject response) {
                         try {
                             VolleyLog.v("Response:%n %s", response.toString(4));
-                            /*Intent intent = new Intent(view.getContext(), ThreadViewActivity.class);
-                            intent.putExtra("thread_id", thread_id);
-                            startActivity(intent);*/
-                            final TextView ratingView = (TextView) findViewById(R.id.ratingView);
-                            rating++;
-                            if(hasVoted) {
-                                rating++;
-                            }
-                            if(rating == 1) {
-                                ratingView.setText(rating + " point");
-                            }
-                            else {
-                                ratingView.setText(rating + " points");
-                            }
-
-                            Button upButton = (Button) findViewById(R.id.upButton);
-                            upButton.setEnabled(false);
-                            Button downButton = (Button) findViewById(R.id.downButton);
-                            downButton.setEnabled(true);
-                            hasVoted = true;
                         }
                         catch (JSONException e) {
                             e.printStackTrace();
@@ -167,15 +204,72 @@ public class ThreadViewActivity extends AppCompatActivity {
             }
         });
         queue.add(req);
+        if(twice) {
+            HashMap<String,String> params2 = new HashMap<String,String>();
+            params.put("post", thread_id);
+            params.put("vote", rate_string);
+
+            JsonObjectRequest req2 = new JsonObjectRequest(URL, new JSONObject(params2),
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            try {
+                                VolleyLog.v("Response:%n %s", response.toString(4));
+                            }
+                            catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    VolleyLog.e("Error: ", error.getMessage());
+                }
+            });
+            queue.add(req2);
+        }
         queue.start();
     }
 
     public void downVote(final View view) {
+        String rate_string = "down";
+        boolean twice = false;
+        if(user_rating == -1) {
+            user_rating = 0;
+            rating++;
+            rate_string = "up";
+        }
+        else if(user_rating == 0) {
+            user_rating = -1;
+            rating--;
+        }
+        else if(user_rating == 1) {
+            user_rating = -1;
+            rating -= 2;
+            twice = true;
+            ToggleButton upButton = (ToggleButton) findViewById(R.id.upButton);
+            upButton.setChecked(false);
+        }
+
+        TextView ratingView = (TextView) findViewById(R.id.ratingView);
+        if(rating == 1) {
+            ratingView.setText(rating + " point");
+        }
+        else {
+            ratingView.setText(rating + " points");
+        }
+
+        SharedPreferences user_ratings = getSharedPreferences("user_ratings", Context.MODE_PRIVATE);
+        // key is post id, 0 means not voted, 1 means upvoted, -1 means downvoted
+        SharedPreferences.Editor editor = user_ratings.edit();
+        editor.putInt(thread_id, user_rating);
+        editor.commit();
+
         final String URL = "http://bttl.herokuapp.com/api/rate_post";
         RequestQueue queue = Volley.newRequestQueue(this);
         HashMap<String,String> params = new HashMap<String,String>();
         params.put("post", thread_id);
-        params.put("vote", "down");
+        params.put("vote", rate_string);
 
         JsonObjectRequest req = new JsonObjectRequest(URL, new JSONObject(params),
                 new Response.Listener<JSONObject>() {
@@ -183,26 +277,6 @@ public class ThreadViewActivity extends AppCompatActivity {
                     public void onResponse(JSONObject response) {
                         try {
                             VolleyLog.v("Response:%n %s", response.toString(4));
-                            /*Intent intent = new Intent(view.getContext(), ThreadViewActivity.class);
-                            intent.putExtra("thread_id", thread_id);
-                            startActivity(intent);*/
-                            final TextView ratingView = (TextView) findViewById(R.id.ratingView);
-                            rating--;
-                            if(hasVoted) {
-                                rating--;
-                            }
-                            if(rating == 1) {
-                                ratingView.setText(rating + " point");
-                            }
-                            else {
-                                ratingView.setText(rating + " points");
-                            }
-
-                            Button upButton = (Button) findViewById(R.id.upButton);
-                            upButton.setEnabled(true);
-                            Button downButton = (Button) findViewById(R.id.downButton);
-                            downButton.setEnabled(false);
-                            hasVoted = true;
                         }
                         catch (JSONException e) {
                             e.printStackTrace();
@@ -215,6 +289,30 @@ public class ThreadViewActivity extends AppCompatActivity {
             }
         });
         queue.add(req);
+        if(twice) {
+            HashMap<String,String> params2 = new HashMap<String,String>();
+            params.put("post", thread_id);
+            params.put("vote", rate_string);
+
+            JsonObjectRequest req2 = new JsonObjectRequest(URL, new JSONObject(params2),
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            try {
+                                VolleyLog.v("Response:%n %s", response.toString(4));
+                            }
+                            catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    VolleyLog.e("Error: ", error.getMessage());
+                }
+            });
+            queue.add(req2);
+        }
         queue.start();
     }
 }
