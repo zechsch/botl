@@ -35,7 +35,11 @@ public class ThreadViewActivity extends AppCompatActivity {
     int user_rating = 0;
     Boolean hasVoted = false;
 
-
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        overridePendingTransition(R.animator.enter_login_from_main, R.animator.exit_login_from_main);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

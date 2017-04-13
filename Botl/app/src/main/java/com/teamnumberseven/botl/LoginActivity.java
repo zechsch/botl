@@ -3,7 +3,9 @@ package com.teamnumberseven.botl;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -65,11 +67,23 @@ public class LoginActivity extends AppCompatActivity {
     private View mLoginFormView;
     private TextView registerLink;
 
+    public static final String MyPREFERENCES = "MyPrefs";
+    public static final String Name = "nameKey";
+    public static final String UserID = "idKey";
+
+    SharedPreferences sharedpreferences;
+
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        overridePendingTransition(R.animator.enter_from_login, R.animator.exit_from_login);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        setupActionBar();
+        //setupActionBar();
         // Set up the login form.
         mUsernameView = (EditText) findViewById(R.id.username);
 
@@ -93,6 +107,7 @@ public class LoginActivity extends AppCompatActivity {
                 // Start the Signup activity
                 Intent intent = new Intent(getApplicationContext(), RegisterActivity.class);
                 startActivity(intent);
+                overridePendingTransition(R.animator.enter_login_from_main, R.animator.exit_login_from_main);
             }
         });
 
@@ -111,13 +126,13 @@ public class LoginActivity extends AppCompatActivity {
     /**
      * Set up the {@link android.app.ActionBar}, if the API is available.
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    /*@TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void setupActionBar() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             // Show the Up button in the action bar.
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-    }
+    }*/
 
     /**
      * Attempts to sign in or register the account specified by the login form.
@@ -243,8 +258,16 @@ public class LoginActivity extends AppCompatActivity {
                             try {
                                 VolleyLog.v("Response:%n %s", response.toString(4));
                                 Log.d("RESP:" , response.toString(4));
+                                Log.d("FXN", response.toString(4));
+                                sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+
+                                SharedPreferences.Editor editor = sharedpreferences.edit();
+                                editor.putString(Name, mUsername);
+                                //editor.putString(UserID, )
+                                editor.commit();
                                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                 startActivity(intent);
+                                overridePendingTransition(R.animator.enter_from_login, R.animator.exit_from_login);
                             }
                             catch (JSONException e) {
                                 e.printStackTrace();

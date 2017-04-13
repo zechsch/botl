@@ -140,6 +140,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         //code
     }
 
+
     @Override
     public void onLocationChanged(Location location) {
         /*double latitude = location.getLatitude();
@@ -185,6 +186,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     }
 
+
+
     // function to go to the thread associated with what is pressed in the feed
     public void goToThread(View view) {
         Intent intent = new Intent(view.getContext(), ThreadViewActivity.class);
@@ -201,6 +204,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             intent.putExtra("longitude", mLastLocation.getLongitude());
             intent.putExtra("latitude", mLastLocation.getLatitude());
             startActivity(intent);
+            overridePendingTransition(R.animator.enter_threadview_from_main, R.animator.exit_threadview_from_main);
         }
     }
 
@@ -230,6 +234,29 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             longitude = x;
             latitude = y;
         }
+    }
+
+    @Override
+    public void onResume()
+    {  // After a pause OR at startup
+        super.onResume();
+        Log.d("FXN", " RESUME");
+        if(mLastLocation != null) {
+            mMap.clear();
+            getNearbyPosts();
+        }
+        //mMap.clear();
+        //Refresh your stuff here
+    }
+
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        /*Intent startMain = new Intent(Intent.ACTION_MAIN);
+        startMain.addCategory(Intent.CATEGORY_HOME);
+        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(startMain);*/
+        this.moveTaskToBack(true);
     }
 
     public void getNearbyPosts() {
@@ -285,8 +312,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                                     Log.d("SENDING", "ThreadViewActivity this post_id: " + post_id);
                                     intent.putExtra("thread_id", post_id);
                                     startActivity(intent);
+                                    overridePendingTransition(R.animator.enter_threadview_from_main, R.animator.exit_threadview_from_main);
                                 }
                             });
+
                             listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
                                 public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id){
                                     String post_id = String.valueOf(post_ids[position]);
@@ -303,6 +332,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                                     return true;
                                 }
                             });
+
 
 
                             //Populate map with markers and their messages
@@ -410,7 +440,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         //s = "1";
         intent.putExtra("thread_id", s);
         startActivity(intent);
-
+        overridePendingTransition(R.animator.enter_threadview_from_main, R.animator.exit_threadview_from_main);
     }
 
     @Override
@@ -475,7 +505,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             Log.d("FXN", "SWIPE RIGHT");
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
-
+            overridePendingTransition(R.animator.enter_login_from_main, R.animator.exit_login_from_main);
         }
         public void onSwipeLeft() {
             Log.d("FXN", "SWIPE LEFT");

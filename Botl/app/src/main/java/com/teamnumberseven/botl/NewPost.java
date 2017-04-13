@@ -40,6 +40,12 @@ public class NewPost extends AppCompatActivity {
         longitude = intent.getDoubleExtra("longitude", defaultValue);
     }
 
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        overridePendingTransition(R.animator.enter_login_from_main, R.animator.exit_login_from_main);
+    }
+
     public void postMessage(View v) {
 
         final String URL = "http://bttl.herokuapp.com/api/new_post";
@@ -80,6 +86,6 @@ public class NewPost extends AppCompatActivity {
 
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
-
+        overridePendingTransition(R.animator.enter_login_from_main, R.animator.exit_login_from_main);
     }
 }

@@ -66,7 +66,7 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        setupActionBar();
+        //setupActionBar();
 
         mPasswordView = (EditText) findViewById(R.id.password_register);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -99,13 +99,13 @@ public class RegisterActivity extends AppCompatActivity {
     /**
      * Set up the {@link android.app.ActionBar}, if the API is available.
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+   /* @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void setupActionBar() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             // Show the Up button in the action bar.
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-    }
+    }*/
 
     /**
      * Attempts to sign in or register the account specified by the login form.
@@ -172,6 +172,12 @@ public class RegisterActivity extends AppCompatActivity {
     private boolean isPhoneValid(String phone) {
         //TODO: Replace this with your own logic
         return phone.length() == 10;
+    }
+
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        overridePendingTransition(R.animator.enter_from_login, R.animator.exit_from_login);
     }
 
     /**
@@ -258,6 +264,7 @@ public class RegisterActivity extends AppCompatActivity {
                                 intent.putExtra("phone", mPhone);
                                 intent.putExtra("device", mDeviceID);
                                 startActivity(intent);
+                                overridePendingTransition(R.animator.enter_from_login, R.animator.exit_from_login);
                             }
                             catch (JSONException e) {
                                 e.printStackTrace();
