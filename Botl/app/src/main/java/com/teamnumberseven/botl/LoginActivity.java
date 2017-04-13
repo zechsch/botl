@@ -265,7 +265,6 @@ public class LoginActivity extends AppCompatActivity {
 
 
                                 sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
-
                                 SharedPreferences.Editor editor = sharedpreferences.edit();
                                 editor.putString(Name, mUsername);
                                 editor.putString(UserID, uID);

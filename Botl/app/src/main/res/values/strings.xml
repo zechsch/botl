@@ -33,9 +33,9 @@
 
     <!-- Strings related to account settings -->
     <string-array name="chat_sorting">
-        <item>Distance</item>
-        <item>Rating</item>
-        <item>Time</item>
+        <item>distance</item>
+        <item>rating</item>
+        <item>time</item>
     </string-array>
 
     <!-- font awesome -->

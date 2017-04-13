@@ -1,6 +1,7 @@
 package com.teamnumberseven.botl;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -31,6 +32,7 @@ public class NewPost extends AppCompatActivity {
     private double defaultValue = 1;
     private double latitude;
     private double longitude;
+    public static final String MyPREFERENCES = "UserInfo";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +40,18 @@ public class NewPost extends AppCompatActivity {
         Intent intent = getIntent();
         latitude = intent.getDoubleExtra("latitude", defaultValue);
         longitude = intent.getDoubleExtra("longitude", defaultValue);
+    }
+
+    public String getUserID()
+    {
+        SharedPreferences prefs = getSharedPreferences(MyPREFERENCES, MODE_PRIVATE);
+        String restoredText = prefs.getString("idKey", null);
+        if (restoredText != null){
+            Log.d("FXN", "USER ID: "+restoredText);
+            return restoredText;
+        }
+        Log.d("FXN", "Return NULL String as User ID");
+        return null;
     }
 
     @Override
@@ -49,6 +63,7 @@ public class NewPost extends AppCompatActivity {
     public void postMessage(View v) {
 
         final String URL = "http://bttl.herokuapp.com/api/new_post";
+        String userID = getUserID();
         RequestQueue queue = Volley.newRequestQueue(this);
         // Post params to be sent to the server
         EditText editText = (EditText) findViewById(R.id.editText);
@@ -57,7 +72,7 @@ public class NewPost extends AppCompatActivity {
         params.put("latitude", Double.toString(latitude));
         params.put("longitude", Double.toString(longitude));
         params.put("message", editText.getText().toString());
-        params.put("user_id", "1");
+        params.put("user_id", userID);
 
         JsonObjectRequest req = new JsonObjectRequest(URL, new JSONObject(params),
                 new Response.Listener<JSONObject>() {

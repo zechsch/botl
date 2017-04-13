@@ -79,6 +79,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     boolean locationSet = false;
     private GestureDetectorCompat mDetector;
     public static final String MyPREFERENCES = "UserInfo";
+    public static final String handle = "handleKey";
+    public static final String chatSort = "chatsortKey";
+    public static final String dist = "distanceKey";
+    public static final String numPosts = "numPostsKey";
+
 
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
@@ -92,6 +97,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         }
     }
 
+    public String getName()
+    {
+        SharedPreferences prefs = getSharedPreferences(MyPREFERENCES, MODE_PRIVATE);
+        String restoredText = prefs.getString(handle, null);
+        if (restoredText != null){
+            return restoredText;
+        }
+        return null;
+    }
+
     public boolean checkLoggedIn()
     {
         SharedPreferences prefs = getSharedPreferences(MyPREFERENCES, MODE_PRIVATE);
@@ -103,15 +118,37 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         return false;
     }
 
+    public String getDistance()
+    {
+        SharedPreferences prefs = getSharedPreferences(MyPREFERENCES, MODE_PRIVATE);
+        String restoredText = prefs.getString(dist, "5");
+        return restoredText;
+    }
+
+    public String getNumPosts()
+    {
+        SharedPreferences prefs = getSharedPreferences(MyPREFERENCES, MODE_PRIVATE);
+        String restoredText = prefs.getString(numPosts, "25");
+        return restoredText;
+    }
+
+    public String checkChatSort()
+    {
+        SharedPreferences prefs = getSharedPreferences(MyPREFERENCES, MODE_PRIVATE);
+        String restoredText = prefs.getString(chatSort, "distance");
+        //Log.d("FXN", "Chat Sort: "+restoredText);
+        return restoredText;
+    }
+
     public String getUserID()
     {
         SharedPreferences prefs = getSharedPreferences(MyPREFERENCES, MODE_PRIVATE);
         String restoredText = prefs.getString("idKey", null);
         if (restoredText != null){
-            Log.d("FXN", "USER ID: "+restoredText);
+            //Log.d("FXN", "USER ID: "+restoredText);
             return restoredText;
         }
-        Log.d("FXN", "Return NULL String as User ID");
+        //Log.d("FXN", "Return NULL String as User ID");
         return null;
     }
 
@@ -146,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     @Override
     public void onConnected(Bundle b) {
         mLocationRequest = new LocationRequest();
-        Log.d("FXN", "CONNECTED");
+        //Log.d("FXN", "CONNECTED");
         mLocationRequest.setInterval(1000);
         mLocationRequest.setFastestInterval(1000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
@@ -224,7 +261,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     public void goToNewPost(View v) {
         if(mLastLocation != null ) {
-            Log.d("PRESSED PLUS BUTTON", "go to new post");
+            //Log.d("PRESSED PLUS BUTTON", "go to new post");
             Intent intent = new Intent(v.getContext(), NewPost.class);
             intent.putExtra("longitude", mLastLocation.getLongitude());
             intent.putExtra("latitude", mLastLocation.getLatitude());
@@ -265,7 +302,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     public void onResume()
     {  // After a pause OR at startup
         super.onResume();
-        Log.d("FXN", " RESUME");
+        //Log.d("FXN", " RESUME");
         if(mLastLocation != null) {
             mMap.clear();
             getNearbyPosts();
@@ -295,8 +332,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         HashMap<String, String> params = new HashMap<String, String>();
         params.put("latitude", Double.toString(mLastLocation.getLatitude()));
         params.put("longitude", Double.toString(mLastLocation.getLongitude()));
-        params.put("distance", "1000");
-        params.put("num_posts", "50");
+        params.put("distance", getDistance());
+        params.put("num_posts", getNumPosts());
+
+        String sort_posts = checkChatSort();
+        //Log.d("FXN", "SORTING BY: " + sort_posts);
+        params.put("sort", sort_posts);
 
         JsonObjectRequest req = new JsonObjectRequest(URL, new JSONObject(params),
                 new Response.Listener<JSONObject>() {
@@ -320,6 +361,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                                 else {
                                     post.put("rating", post_obj.getString("rating") + " points");
                                 }
+
                                 post_list.add(post);
                                 post_titles[i] = post_obj.getString("message");
                                 post_ids[i] = post_obj.getString("post_id");
@@ -334,7 +376,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                                     Intent intent = new Intent(view.getContext(), ThreadViewActivity.class);
                                     String post_id = String.valueOf(post_ids[position]);
-                                    Log.d("SENDING", "ThreadViewActivity this post_id: " + post_id);
+                                    //Log.d("SENDING", "ThreadViewActivity this post_id: " + post_id);
                                     intent.putExtra("thread_id", post_id);
                                     startActivity(intent);
                                     overridePendingTransition(R.animator.enter_threadview_from_main, R.animator.exit_threadview_from_main);
@@ -361,10 +403,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
 
                             //Populate map with markers and their messages
-                            Log.d("CORDS LIST SIZE", ""+coords_list.size());
+                            //Log.d("CORDS LIST SIZE", ""+coords_list.size());
                             for (int i = 0; i < coords_list.size(); i++)
                             {
-                                Log.d("NEW PT", "X: " + coords_list.get(i).longitude + " Y " + coords_list.get(i).latitude + " MESSAGE: " + post_list.get(i));
+                                //Log.d("NEW PT", "X: " + coords_list.get(i).longitude + " Y " + coords_list.get(i).latitude + " MESSAGE: " + post_list.get(i));
                                 //googleMap.addMarker(new MarkerOptions().position(new LatLng(current_location.getLatitude(), current_location.getLongitude())).title("Marker"));
                                 Marker m = mMap.addMarker(new MarkerOptions()
                                                .position(new LatLng(coords_list.get(i).latitude, coords_list.get(i).longitude))
@@ -527,31 +569,31 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         //}
 
         public void onSwipeRight() {
-            Log.d("FXN", "SWIPE RIGHT");
+            //Log.d("FXN", "SWIPE RIGHT");
             //User is logged in, go to account settings
             if (checkLoggedIn())
             {
-                Log.d("FXN","Logged In View");
+                //Log.d("FXN","Logged In View");
                 Intent intent = new Intent(MainActivity.this, AccountSettingsActivity.class);
                 startActivity(intent);
                 overridePendingTransition(R.animator.enter_login_from_main, R.animator.exit_login_from_main);
             }
             else
             {
-                Log.d("FXN","Not Logged In View");
+                //Log.d("FXN","Not Logged In View");
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(intent);
                 overridePendingTransition(R.animator.enter_login_from_main, R.animator.exit_login_from_main);
             }
         }
         public void onSwipeLeft() {
-            Log.d("FXN", "SWIPE LEFT");
+            //Log.d("FXN", "SWIPE LEFT");
         }
         public void onSwipeTop() {
-            Log.d("FXN", "SWIPE TOP");
+            //Log.d("FXN", "SWIPE TOP");
         }
         public void onSwipeBottom() {
-            Log.d("FXN", "SWIPE BOTTOM");
+            //Log.d("FXN", "SWIPE BOTTOM");
         }
     }
 }

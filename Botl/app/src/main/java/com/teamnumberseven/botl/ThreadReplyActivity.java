@@ -1,6 +1,7 @@
 package com.teamnumberseven.botl;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -26,6 +27,8 @@ import java.util.HashMap;
 public class ThreadReplyActivity extends AppCompatActivity {
 
     String thread_id = new String();
+    public static final String MyPREFERENCES = "UserInfo";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +38,16 @@ public class ThreadReplyActivity extends AppCompatActivity {
         Intent intent = getIntent();
         thread_id = intent.getStringExtra("thread_id");
         //EditText editText = (EditText) findViewById(R.id.editText);
+    }
+
+    public String getUserID()
+    {
+        SharedPreferences prefs = getSharedPreferences(MyPREFERENCES, MODE_PRIVATE);
+        String restoredText = prefs.getString("idKey", null);
+        if (restoredText != null){
+            return restoredText;
+        }
+        return null;
     }
 
     public void cancelReply(View view) {
@@ -51,7 +64,7 @@ public class ThreadReplyActivity extends AppCompatActivity {
         HashMap<String,String> params = new HashMap<String,String>();
         params.put("thread", thread_id);
         params.put("message", editText.getText().toString());
-        params.put("user_id", "-1");
+        params.put("user_id", getUserID());
 
         JsonObjectRequest req = new JsonObjectRequest(URL, new JSONObject(params),
                 new Response.Listener<JSONObject>() {
