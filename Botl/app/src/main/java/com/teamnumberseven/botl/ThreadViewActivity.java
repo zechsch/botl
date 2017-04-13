@@ -185,6 +185,12 @@ public class ThreadViewActivity extends AppCompatActivity {
         HashMap<String,String> params = new HashMap<String,String>();
         params.put("post", thread_id);
         params.put("vote", rate_string);
+        if(twice) {
+            params.put("revote", "true");
+        }
+        else {
+            params.put("revote", "false");
+        }
 
         JsonObjectRequest req = new JsonObjectRequest(URL, new JSONObject(params),
                 new Response.Listener<JSONObject>() {
@@ -204,30 +210,6 @@ public class ThreadViewActivity extends AppCompatActivity {
             }
         });
         queue.add(req);
-        if(twice) {
-            HashMap<String,String> params2 = new HashMap<String,String>();
-            params.put("post", thread_id);
-            params.put("vote", rate_string);
-
-            JsonObjectRequest req2 = new JsonObjectRequest(URL, new JSONObject(params2),
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            try {
-                                VolleyLog.v("Response:%n %s", response.toString(4));
-                            }
-                            catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    VolleyLog.e("Error: ", error.getMessage());
-                }
-            });
-            queue.add(req2);
-        }
         queue.start();
     }
 
@@ -270,6 +252,12 @@ public class ThreadViewActivity extends AppCompatActivity {
         HashMap<String,String> params = new HashMap<String,String>();
         params.put("post", thread_id);
         params.put("vote", rate_string);
+        if(twice) {
+            params.put("revote", "true");
+        }
+        else {
+            params.put("revote", "false");
+        }
 
         JsonObjectRequest req = new JsonObjectRequest(URL, new JSONObject(params),
                 new Response.Listener<JSONObject>() {
@@ -289,30 +277,6 @@ public class ThreadViewActivity extends AppCompatActivity {
             }
         });
         queue.add(req);
-        if(twice) {
-            HashMap<String,String> params2 = new HashMap<String,String>();
-            params.put("post", thread_id);
-            params.put("vote", rate_string);
-
-            JsonObjectRequest req2 = new JsonObjectRequest(URL, new JSONObject(params2),
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            try {
-                                VolleyLog.v("Response:%n %s", response.toString(4));
-                            }
-                            catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    VolleyLog.e("Error: ", error.getMessage());
-                }
-            });
-            queue.add(req2);
-        }
         queue.start();
     }
 }
