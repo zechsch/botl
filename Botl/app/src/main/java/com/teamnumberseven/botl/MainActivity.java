@@ -3,6 +3,7 @@ package com.teamnumberseven.botl;
 import android.*;
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.graphics.Typeface;
@@ -77,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     HashMap<String, Marker> idToMarker = new HashMap<String, Marker>();
     boolean locationSet = false;
     private GestureDetectorCompat mDetector;
+    public static final String MyPREFERENCES = "UserInfo";
 
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
@@ -88,6 +90,29 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         else {
             return true;
         }
+    }
+
+    public boolean checkLoggedIn()
+    {
+        SharedPreferences prefs = getSharedPreferences(MyPREFERENCES, MODE_PRIVATE);
+
+        int restoredText = prefs.getInt("loggedInKey", 0);
+        if (restoredText != 0){
+            return true;
+        }
+        return false;
+    }
+
+    public String getUserID()
+    {
+        SharedPreferences prefs = getSharedPreferences(MyPREFERENCES, MODE_PRIVATE);
+        String restoredText = prefs.getString("idKey", null);
+        if (restoredText != null){
+            Log.d("FXN", "USER ID: "+restoredText);
+            return restoredText;
+        }
+        Log.d("FXN", "Return NULL String as User ID");
+        return null;
     }
 
     @Override
@@ -503,9 +528,21 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
         public void onSwipeRight() {
             Log.d("FXN", "SWIPE RIGHT");
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(intent);
-            overridePendingTransition(R.animator.enter_login_from_main, R.animator.exit_login_from_main);
+            //User is logged in, go to account settings
+            if (checkLoggedIn())
+            {
+                Log.d("FXN","Logged In View");
+                Intent intent = new Intent(MainActivity.this, AccountSettingsActivity.class);
+                startActivity(intent);
+                overridePendingTransition(R.animator.enter_login_from_main, R.animator.exit_login_from_main);
+            }
+            else
+            {
+                Log.d("FXN","Not Logged In View");
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+                overridePendingTransition(R.animator.enter_login_from_main, R.animator.exit_login_from_main);
+            }
         }
         public void onSwipeLeft() {
             Log.d("FXN", "SWIPE LEFT");

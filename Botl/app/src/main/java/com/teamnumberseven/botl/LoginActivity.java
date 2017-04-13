@@ -41,6 +41,7 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -67,11 +68,12 @@ public class LoginActivity extends AppCompatActivity {
     private View mLoginFormView;
     private TextView registerLink;
 
-    public static final String MyPREFERENCES = "MyPrefs";
+    public static final String MyPREFERENCES = "UserInfo";
     public static final String Name = "nameKey";
     public static final String UserID = "idKey";
-
+    public static final String LoggedIn = "loggedInKey";
     SharedPreferences sharedpreferences;
+
 
     @Override
     public void onBackPressed(){
@@ -258,12 +260,16 @@ public class LoginActivity extends AppCompatActivity {
                             try {
                                 VolleyLog.v("Response:%n %s", response.toString(4));
                                 Log.d("RESP:" , response.toString(4));
-                                Log.d("FXN", response.toString(4));
+                                Log.d("FXN", "TRYING TO LOGIN");
+                                String uID = response.getString("id");
+
+
                                 sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
 
                                 SharedPreferences.Editor editor = sharedpreferences.edit();
                                 editor.putString(Name, mUsername);
-                                //editor.putString(UserID, )
+                                editor.putString(UserID, uID);
+                                editor.putInt(LoggedIn, 1);
                                 editor.commit();
                                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                 startActivity(intent);

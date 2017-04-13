@@ -31,6 +31,13 @@
     <string name="title_activity_registration_verification">Registration Verification</string>
     <string name="confirm">Confirm</string>
 
+    <!-- Strings related to account settings -->
+    <string-array name="chat_sorting">
+        <item>Distance</item>
+        <item>Rating</item>
+        <item>Time</item>
+    </string-array>
+
     <!-- font awesome -->
     <string name="icon_refresh">&#xf021;</string>
     <string name="icon_chevron_right">&#xf105;</string>
