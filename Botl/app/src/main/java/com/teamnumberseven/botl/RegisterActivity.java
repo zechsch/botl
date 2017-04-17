@@ -258,6 +258,10 @@ public class RegisterActivity extends AppCompatActivity {
                                 Log.d("PARAM:", mPassword);
                                 Log.d("PARAM:", mPhone);
                                 Log.d("PARAM:", mDeviceID);
+                                Log.d("FXN:", mUsername);
+                                Log.d("FXN:", mPassword);
+                                Log.d("FXN:", mPhone);
+                                Log.d("FXN:", mDeviceID);
                                 Intent intent = new Intent(getApplicationContext(), RegistrationVerification.class);
                                 intent.putExtra("username", mUsername);
                                 intent.putExtra("password", mPassword);

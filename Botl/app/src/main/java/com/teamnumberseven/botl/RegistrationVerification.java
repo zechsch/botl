@@ -235,6 +235,11 @@ public class RegistrationVerification extends AppCompatActivity {
             Log.d("PARAM:", "Phone: " + mPhone);
             Log.d("PARAM:", "Device: " + mDeviceID);
             Log.d("PARAM:", "Code: " + mCode);
+            Log.d("FXN:", "Username: " + mUsername);
+            Log.d("FXN:", "Password: " + mPassword);
+            Log.d("FXN:", "Phone: " + mPhone);
+            Log.d("FXN:", "Device: " + mDeviceID);
+            Log.d("FXN:", "Code: " + mCode);
 
             JsonObjectRequest req = new JsonObjectRequest(URL, new JSONObject(parameters),
                     new Response.Listener<JSONObject>() {
@@ -242,6 +247,7 @@ public class RegistrationVerification extends AppCompatActivity {
                         public void onResponse(JSONObject response) {
                             try {
                                 VolleyLog.v("Response:%n %s", response.toString(4));
+                                Log.d("FXN" , response.toString(4));
                                 Log.d("RESP:" , response.toString(4));
                                 Intent intent = new Intent(RegistrationVerification.this, MainActivity.class);
                                 startActivity(intent);
@@ -254,6 +260,7 @@ public class RegistrationVerification extends AppCompatActivity {
                     }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
+                    Log.d("FXN" , "IT MESSED UP");
                     VolleyLog.e("Error: ", error.getMessage());
                 }
             });

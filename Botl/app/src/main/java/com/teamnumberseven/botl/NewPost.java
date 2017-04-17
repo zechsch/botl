@@ -1,10 +1,14 @@
 package com.teamnumberseven.botl;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 
@@ -32,7 +36,10 @@ public class NewPost extends AppCompatActivity {
     private double defaultValue = 1;
     private double latitude;
     private double longitude;
+    private GestureDetectorCompat mDetector;
     public static final String MyPREFERENCES = "UserInfo";
+    public static final String lat = "latKey";
+    public static final String lon = "lonKey";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +47,7 @@ public class NewPost extends AppCompatActivity {
         Intent intent = getIntent();
         latitude = intent.getDoubleExtra("latitude", defaultValue);
         longitude = intent.getDoubleExtra("longitude", defaultValue);
+        mDetector = new GestureDetectorCompat(this, new NewPost.MyGestureListener());
     }
 
     public String getUserID()
@@ -99,8 +107,72 @@ public class NewPost extends AppCompatActivity {
         queue.add(req);
         queue.start();
 
+        SharedPreferences sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(lon, Double.toString(longitude));
+        editor.putString(lat, Double.toString(latitude));
+        editor.commit();
+
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         overridePendingTransition(R.animator.enter_login_from_main, R.animator.exit_login_from_main);
+    }
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        this.mDetector.onTouchEvent(event);
+        return super.onTouchEvent(event);
+    }
+
+
+
+    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+        //Swipe Gestures
+        private static final int SWIPE_THRESHOLD = 100;
+        private static final int SWIPE_VELOCITY_THRESHOLD = 100;
+
+        private static final String DEBUG_TAG = "FXN Gestures";
+
+        @Override
+        public boolean onFling(MotionEvent event1, MotionEvent event2,
+                               float velocityX, float velocityY) {
+            boolean result = false;
+            try {
+                float diffY = event2.getY() - event1.getY();
+                float diffX = event2.getX() - event1.getX();
+                if (Math.abs(diffX) > Math.abs(diffY)) {
+                    if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                        if (diffX > 0) {
+                            onSwipeRight();
+                        } else {
+                            onSwipeLeft();
+                        }
+                        result = true;
+                    }
+                }
+                else if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
+                    if (diffY > 0) {
+                        onSwipeBottom();
+                    } else {
+                        onSwipeTop();
+                    }
+                    result = true;
+                }
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+            return result;
+        }
+
+        public void onSwipeRight() {
+            Intent intent = new Intent(NewPost.this, MainActivity.class);
+            startActivity(intent);
+            overridePendingTransition(R.animator.enter_login_from_main, R.animator.exit_login_from_main);
+        }
+        public void onSwipeLeft() {
+        }
+        public void onSwipeTop() {
+        }
+        public void onSwipeBottom() {
+        }
     }
 }

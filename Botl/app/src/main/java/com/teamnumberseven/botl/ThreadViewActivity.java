@@ -4,9 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.InputType;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
@@ -38,7 +41,10 @@ public class ThreadViewActivity extends AppCompatActivity {
     int user_rating = 0;
     Boolean hasVoted = false;
     Boolean reply_visible = false;
+    private GestureDetectorCompat mDetector;
     ArrayList<String> post_list = new ArrayList<String>();
+    public static final String MyPREFERENCES = "UserInfo";
+
 
     @Override
     public void onBackPressed(){
@@ -50,6 +56,8 @@ public class ThreadViewActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_thread_view);
+
+        mDetector = new GestureDetectorCompat(this, new ThreadViewActivity.MyGestureListener());
 
         // get the intent that started this activity
         Intent intent = getIntent();
@@ -95,10 +103,10 @@ public class ThreadViewActivity extends AppCompatActivity {
                             //textView.setText(thread_posts);
                             textView.setText(posts.getJSONObject(0).getString("message"));
                             if(Integer.parseInt(posts.getJSONObject(0).getString("rating")) == 1) {
-                                ratingView.setText(posts.getJSONObject(0).getString("rating") + " point");
+                                ratingView.setText(posts.getJSONObject(0).getString("user_id") + "\t\t\t\t\t\t\t\t\t\t" + posts.getJSONObject(0).getString("rating") + " point");
                             }
                             else {
-                                ratingView.setText(posts.getJSONObject(0).getString("rating") + " points");
+                                ratingView.setText(posts.getJSONObject(0).getString("user_id") + "\t\t\t\t\t\t\t\t\t\t" + posts.getJSONObject(0).getString("rating") + " points");
                             }
                             rating = Integer.parseInt(posts.getJSONObject(0).getString("rating"));
                             ArrayAdapter adapter = new ArrayAdapter<String>(ThreadViewActivity.this, android.R.layout.simple_list_item_1, post_list);
@@ -147,6 +155,18 @@ public class ThreadViewActivity extends AppCompatActivity {
         }
     }
 
+    public String getUserID()
+    {
+        SharedPreferences prefs = getSharedPreferences(MyPREFERENCES, MODE_PRIVATE);
+        String restoredText = prefs.getString("idKey", null);
+        if (restoredText != null){
+            Log.d("FXN", "USER ID: "+restoredText);
+            return restoredText;
+        }
+        Log.d("FXN", "Return NULL String as User ID");
+        return null;
+    }
+
     public void goToThreadReply(View view) {
         /*Intent intent = new Intent(view.getContext(), ThreadReplyActivity.class);
         intent.putExtra("thread_id", thread_id);
@@ -163,12 +183,20 @@ public class ThreadViewActivity extends AppCompatActivity {
         else {
             reply_visible = false;
             reply_button.setText("Reply");
-            InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
             reply_entry.setVisibility(View.GONE);
             send_button.setVisibility(View.GONE);
             reply_entry.setText("");
+
+            // hide keyboard
+            InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        this.mDetector.onTouchEvent(event);
+        return super.onTouchEvent(event);
     }
 
     public void sendReply(View view) {
@@ -195,11 +223,12 @@ public class ThreadViewActivity extends AppCompatActivity {
 
         // send response to API
         final String URL = "http://bttl.herokuapp.com/api/reply";
+        String userID = getUserID();
         RequestQueue queue = Volley.newRequestQueue(this);
         HashMap<String,String> params = new HashMap<String,String>();
         params.put("thread", thread_id);
         params.put("message", reply_entry.getText().toString());
-        params.put("user_id", "-1");
+        params.put("user_id", userID);
 
         JsonObjectRequest req = new JsonObjectRequest(URL, new JSONObject(params),
                 new Response.Listener<JSONObject>() {
@@ -357,5 +386,56 @@ public class ThreadViewActivity extends AppCompatActivity {
         });
         queue.add(req);
         queue.start();
+    }
+
+    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+        //Swipe Gestures
+        private static final int SWIPE_THRESHOLD = 100;
+        private static final int SWIPE_VELOCITY_THRESHOLD = 100;
+
+        private static final String DEBUG_TAG = "FXN Gestures";
+
+        @Override
+        public boolean onFling(MotionEvent event1, MotionEvent event2,
+                               float velocityX, float velocityY) {
+            boolean result = false;
+            try {
+                float diffY = event2.getY() - event1.getY();
+                float diffX = event2.getX() - event1.getX();
+                if (Math.abs(diffX) > Math.abs(diffY)) {
+                    if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                        if (diffX > 0) {
+                            onSwipeRight();
+                        } else {
+                            onSwipeLeft();
+                        }
+                        result = true;
+                    }
+                }
+                else if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
+                    if (diffY > 0) {
+                        onSwipeBottom();
+                    } else {
+                        onSwipeTop();
+                    }
+                    result = true;
+                }
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+            return result;
+        }
+
+        public void onSwipeRight() {
+            Intent intent = new Intent(ThreadViewActivity.this, MainActivity.class);
+            startActivity(intent);
+            overridePendingTransition(R.animator.enter_login_from_main, R.animator.exit_login_from_main);
+        }
+        public void onSwipeLeft() {
+        }
+        public void onSwipeTop() {
+        }
+        public void onSwipeBottom() {
+        }
     }
 }

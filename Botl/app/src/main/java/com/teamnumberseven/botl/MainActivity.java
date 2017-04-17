@@ -2,6 +2,7 @@ package com.teamnumberseven.botl;
 
 import android.*;
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -67,8 +68,7 @@ import static com.teamnumberseven.botl.R.id.feed;
 import static com.teamnumberseven.botl.R.id.textView;
 
 
-public class MainActivity extends AppCompatActivity implements LocationListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener{
-    public Location current_location = new Location("");
+public class MainActivity extends AppCompatActivity implements LocationListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener {
     GoogleMap mMap;
     GoogleApiClient mGoogleApiClient;
     LocationRequest mLocationRequest;
@@ -83,72 +83,93 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     public static final String chatSort = "chatsortKey";
     public static final String dist = "distanceKey";
     public static final String numPosts = "numPostsKey";
-
+    public static final String lat = "latKey";
+    public static final String lon = "lonKey";
 
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+
     public boolean checkLocationPermission() {
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_LOCATION);
             return false;
-        }
-        else {
+        } else {
             return true;
         }
     }
 
-    public String getName()
-    {
+    public String getName() {
         SharedPreferences prefs = getSharedPreferences(MyPREFERENCES, MODE_PRIVATE);
         String restoredText = prefs.getString(handle, null);
-        if (restoredText != null){
+        if (restoredText != null) {
             return restoredText;
         }
         return null;
     }
 
-    public boolean checkLoggedIn()
+    public void setLoc()
     {
+        Log.d("FXN", "SETTING LOC");
+        SharedPreferences sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(lon, Double.toString(mLastLocation.getLongitude()));
+        editor.putString(lat, Double.toString(mLastLocation.getLatitude()));
+        editor.commit();
+    }
+
+    public boolean checkLoggedIn() {
         SharedPreferences prefs = getSharedPreferences(MyPREFERENCES, MODE_PRIVATE);
 
         int restoredText = prefs.getInt("loggedInKey", 0);
-        if (restoredText != 0){
+        if (restoredText != 0) {
             return true;
         }
         return false;
     }
 
-    public String getDistance()
-    {
+    public Location getLoc() {
+        SharedPreferences prefs = getSharedPreferences(MyPREFERENCES, MODE_PRIVATE);
+        Log.d("FXN", "GETTING LOC");
+        String restoredLongitude = prefs.getString(lon, "0.00");
+        String restoredLatitude = prefs.getString(lat, "0.00");
+        Log.d("FXN", "Longitude: " + restoredLongitude+ " Latitude: "+ restoredLatitude );
+        Location l = new Location("dummy");
+        Log.d("FXN", "Longitude: " + restoredLongitude+ " Latitude: "+ restoredLatitude );
+        double x = Double.valueOf(restoredLongitude);
+        double y = Double.valueOf(restoredLatitude);
+        Log.d("FXN", "Longitude: " + x+ " Latitude: "+ y );
+        l.setLongitude(x);
+        Log.d("FXN", "Longitude: " + restoredLongitude+ " Latitude: "+ restoredLatitude );
+        l.setLatitude(y);
+        Log.d("FXN", "Longitude: " + restoredLongitude+ " Latitude: "+ restoredLatitude );
+        return l;
+    }
+
+    public String getDistance() {
         SharedPreferences prefs = getSharedPreferences(MyPREFERENCES, MODE_PRIVATE);
         String restoredText = prefs.getString(dist, "5");
         return restoredText;
     }
 
-    public String getNumPosts()
-    {
+    public String getNumPosts() {
         SharedPreferences prefs = getSharedPreferences(MyPREFERENCES, MODE_PRIVATE);
         String restoredText = prefs.getString(numPosts, "25");
         return restoredText;
     }
 
-    public String checkChatSort()
-    {
+    public String checkChatSort() {
         SharedPreferences prefs = getSharedPreferences(MyPREFERENCES, MODE_PRIVATE);
         String restoredText = prefs.getString(chatSort, "distance");
         //Log.d("FXN", "Chat Sort: "+restoredText);
         return restoredText;
     }
 
-    public String getUserID()
-    {
+    public String getUserID() {
         SharedPreferences prefs = getSharedPreferences(MyPREFERENCES, MODE_PRIVATE);
         String restoredText = prefs.getString("idKey", null);
-        if (restoredText != null){
-            //Log.d("FXN", "USER ID: "+restoredText);
+        if (restoredText != null) {
             return restoredText;
         }
-        //Log.d("FXN", "Return NULL String as User ID");
         return null;
     }
 
@@ -157,20 +178,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //list.setAdapter(new Array)
+        Log.d("FXN", "ON CREATE MAIN");
 
         Typeface fontAwesome = Typeface.createFromAsset(getAssets(), "fontawesome-webfont.ttf");
-        Button refreshButton = (Button)findViewById(R.id.refreshButton);
+        Button refreshButton = (Button) findViewById(R.id.refreshButton);
         refreshButton.setTypeface(fontAwesome);
-        TextView profile_chevron = (TextView)findViewById(R.id.profileChevron);
+        TextView profile_chevron = (TextView) findViewById(R.id.profileChevron);
         profile_chevron.setTypeface(fontAwesome);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            //Log.d("FXN", "LOC WAS DISABLED, NOW ENABLED");
-            //while( !checkLocationPermission())
-            //{
-            //    Log.d("FXN", "CHECKING PERMISSION CURRENTLY FALSE");
-            //};
             checkLocationPermission();
         }
 
@@ -178,18 +194,23 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        Log.d("FXN", "FINISHED MAIN");
     }
 
     @Override
     public void onConnected(Bundle b) {
+        Log.d("FXN", "ON CONNECTED");
         mLocationRequest = new LocationRequest();
-        //Log.d("FXN", "CONNECTED");
         mLocationRequest.setInterval(1000);
         mLocationRequest.setFastestInterval(1000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         }
+        Location location = getLoc();
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(16), 1, null);
     }
 
     @Override
@@ -205,32 +226,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     @Override
     public void onLocationChanged(Location location) {
-        /*double latitude = location.getLatitude();
-        double longitude = location.getLongitude();
-        LatLng latLng = new LatLng(latitude, longitude);
-        current_location.setLatitude(latitude);
-        current_location.setLongitude(longitude);
-        currentLatitude = latitude;
-        currentLongitude = longitude;
-        mMap.addMarker(new MarkerOptions().position(latLng).anchor(0.5f,0.5f).icon(BitmapDescriptorFactory.fromResource(R.drawable.current_location_marker)));
-        //m.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.botl_map_marker3));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(15));*/
-
         mLastLocation = location;
-        if(mCurrLocationMarker != null) {
+        if (mCurrLocationMarker != null) {
             mCurrLocationMarker.remove();
         }
 
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        /*MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(latLng);
-        markerOptions.title("Current Position");
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-        mCurrLocationMarker = mMap.addMarker(markerOptions);*/
-
-        if(!locationSet) {
+        if (!locationSet) {
             //Move map camera
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
             mMap.animateCamera(CameraUpdateFactory.zoomTo(16), 1, null);
@@ -239,15 +242,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             getNearbyPosts();
         }
 
-
-        //Stop location updates
-        /*if(mGoogleApiClient != null) {
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-        }*/
-
-
     }
-
 
 
     // function to go to the thread associated with what is pressed in the feed
@@ -256,72 +251,88 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         Button pressed = (Button) view;
         String id = String.valueOf(pressed.getTag());
         intent.putExtra("thread_id", id);
+        setLoc();
         startActivity(intent);
     }
 
     public void goToNewPost(View v) {
-        if(mLastLocation != null ) {
-            //Log.d("PRESSED PLUS BUTTON", "go to new post");
+        if (mLastLocation != null) {
             Intent intent = new Intent(v.getContext(), NewPost.class);
             intent.putExtra("longitude", mLastLocation.getLongitude());
             intent.putExtra("latitude", mLastLocation.getLatitude());
+            setLoc();
             startActivity(intent);
             overridePendingTransition(R.animator.enter_threadview_from_main, R.animator.exit_threadview_from_main);
         }
     }
 
     public void getNewPosts(View v) {
-        /*mMap.clear();
-        double latitude = currentLatitude;
-        double longitude = currentLongitude;
-        LatLng latLng = new LatLng(latitude, longitude);
-        current_location.setLatitude(latitude);
-        current_location.setLongitude(longitude);
-        mMap.addMarker(new MarkerOptions().position(latLng).anchor(0.5f,0.5f).icon(BitmapDescriptorFactory.fromResource(R.drawable.current_location_marker)));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(mMap.getCameraPosition().zoom));
-        getNearbyPosts();*/
-        if(mLastLocation != null) {
+        if (mLastLocation != null) {
             mMap.clear();
             getNearbyPosts();
         }
     }
 
 
-    public class Coords{
+    public class Coords {
         double longitude;
         double latitude;
 
-        Coords(double x, double y){
+        Coords(double x, double y) {
             longitude = x;
             latitude = y;
         }
     }
 
     @Override
-    public void onResume()
-    {  // After a pause OR at startup
+    public void onResume() {  // After a pause OR at startup
         super.onResume();
-        //Log.d("FXN", " RESUME");
+
+
+        /*if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }*/
+
+        Log.d("FXN", " RESUME");
         if(mLastLocation != null) {
+            Toast.makeText(this, "LAST LOC NOT NULL", Toast.LENGTH_SHORT).show();
             mMap.clear();
             getNearbyPosts();
         }
-        //mMap.clear();
-        //Refresh your stuff here
+        else{
+            Log.d("FXN", "ELSE");
+            Location tmpp = new Location(getLoc());
+            //tmpp.setLatitude(0.00);
+            //tmpp.setLongitude(0.00);
+            Log.d("FXN", "DONE");
+            Log.d("FXN", "LAST LONG: " + tmpp.getLongitude() + " LAST LAT: " + tmpp.getLatitude());
+            mLastLocation = new Location("");
+            mLastLocation.setLongitude(tmpp.getLongitude());
+            mLastLocation.setLatitude(tmpp.getLatitude());
+            Log.d("FXN", "HOLLA");
+            //mMap.clear();
+            Log.d("FXN", "WHAT");
+            getNearbyPosts();
+            Log.d("FXN", "GETTING NEARBY POSTS");
+            //Toast.makeText(this, "LOC NULL", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
     public void onBackPressed(){
         super.onBackPressed();
-        /*Intent startMain = new Intent(Intent.ACTION_MAIN);
-        startMain.addCategory(Intent.CATEGORY_HOME);
-        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(startMain);*/
         this.moveTaskToBack(true);
     }
 
     public void getNearbyPosts() {
+        Log.d("FXN", "GOING IN");
         final ListView listView = (ListView)findViewById(R.id.listView);
         final LinearLayout linearLayout = new LinearLayout(this);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
@@ -330,13 +341,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         final String URL = "http://bttl.herokuapp.com/api/get_posts";
         RequestQueue queue = Volley.newRequestQueue(this);
         HashMap<String, String> params = new HashMap<String, String>();
+        Log.d("FXN", "Hi1");
         params.put("latitude", Double.toString(mLastLocation.getLatitude()));
         params.put("longitude", Double.toString(mLastLocation.getLongitude()));
+        Log.d("FXN", "Hi2");
         params.put("distance", getDistance());
         params.put("num_posts", getNumPosts());
 
         String sort_posts = checkChatSort();
-        //Log.d("FXN", "SORTING BY: " + sort_posts);
         params.put("sort", sort_posts);
 
         JsonObjectRequest req = new JsonObjectRequest(URL, new JSONObject(params),
@@ -356,10 +368,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                                 Map<String, String> post = new HashMap<String, String>(2);
                                 post.put("title", post_obj.getString("message"));
                                 if(Integer.parseInt(post_obj.getString("rating")) == 1) {
-                                    post.put("rating", post_obj.getString("rating") + " point");
+                                    post.put("rating","user: " + post_obj.getString("user_id") + "\t\t\t\t\t\t\t\t\t" + post_obj.getString("rating") + " point");
                                 }
                                 else {
-                                    post.put("rating", post_obj.getString("rating") + " points");
+                                    post.put("rating", "user: " + post_obj.getString("user_id") + "\t\t\t\t\t\t\t\t\t" + post_obj.getString("rating") + " points");
                                 }
 
                                 post_list.add(post);
@@ -368,16 +380,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                                 post_ratings[i] = post_obj.getString("rating");
                                 coords_list.add(i, new Coords(post_obj.getDouble("longitude"), post_obj.getDouble("latitude")));
                             }
-                            //ArrayAdapter adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, post_list);
                             SimpleAdapter adapter = new SimpleAdapter(MainActivity.this, post_list, android.R.layout.simple_list_item_2, new String[] {"title", "rating"}, new int[] {android.R.id.text1, android.R.id.text2});
                             listView.setAdapter(adapter);
-                            //listView.setAdapter(adapter2);
                             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                                     Intent intent = new Intent(view.getContext(), ThreadViewActivity.class);
                                     String post_id = String.valueOf(post_ids[position]);
-                                    //Log.d("SENDING", "ThreadViewActivity this post_id: " + post_id);
                                     intent.putExtra("thread_id", post_id);
+                                    setLoc();
                                     startActivity(intent);
                                     overridePendingTransition(R.animator.enter_threadview_from_main, R.animator.exit_threadview_from_main);
                                 }
@@ -386,11 +396,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                             listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
                                 public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id){
                                     String post_id = String.valueOf(post_ids[position]);
-                                    //Log.d("FXN", "LONG CLICK ITEM : " + post_id);
                                     Marker m = idToMarker.get(post_id);
                                     onMarkerClick(m);
                                     LatLng loc = m.getPosition();
-                                    //mMap.moveCamera(CameraUpdateFactory.newLatLng(loc));
                                     CameraPosition cameraPosition = new CameraPosition.Builder()
                                             .target(loc)
                                             .zoom(mMap.getCameraPosition().zoom)
@@ -403,11 +411,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
 
                             //Populate map with markers and their messages
-                            //Log.d("CORDS LIST SIZE", ""+coords_list.size());
                             for (int i = 0; i < coords_list.size(); i++)
                             {
-                                //Log.d("NEW PT", "X: " + coords_list.get(i).longitude + " Y " + coords_list.get(i).latitude + " MESSAGE: " + post_list.get(i));
-                                //googleMap.addMarker(new MarkerOptions().position(new LatLng(current_location.getLatitude(), current_location.getLongitude())).title("Marker"));
                                 Marker m = mMap.addMarker(new MarkerOptions()
                                                .position(new LatLng(coords_list.get(i).latitude, coords_list.get(i).longitude))
                                                .snippet("Post ID: " + post_ids[i] + " Rating: " + post_ratings[i])
@@ -415,10 +420,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                                 m.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.botl_map_marker3));
                                 markerMap.put(m, post_ids[i]);
                                 idToMarker.put(post_ids[i], m);
-
-                                //marker_list.add(i,m);
-                                //mMap.setOnMarkerClickListener();
-
                             }
 
                         } catch (JSONException e) {
@@ -462,57 +463,23 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
         mMap.setOnInfoWindowClickListener(this);
         mMap.setOnMarkerClickListener(this);
-        //getNearbyPosts();
-
-        /*locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        locationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                current_location = location;
-            }
-        };
-        mMap = googleMap;
-
-        int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_LOCATION);
-        }
-
-        googleMap.setMyLocationEnabled(true);
-        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-        String bestProvider = locationManager.getBestProvider(criteria, true);
-
-        Location location = locationManager.getLastKnownLocation(bestProvider);
-        if (location != null) {
-            onLocationChanged(location);
-        }
-        //locationManager.requestLocationUpdates(bestProvider, 20000, 0, (android.location.LocationListener) this);
-        //googleMap.addMarker(new MarkerOptions().position(new LatLng(current_location.getLatitude(), current_location.getLongitude())).title("Marker"))
-        mMap.setOnInfoWindowClickListener(this);
-        mMap.setOnMarkerClickListener(this);
-        getNearbyPosts();*/
+        Log.d("FXN", "MAP IS READY");
     }
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-        //Toast.makeText(this, "Info window clicked",
-        //        Toast.LENGTH_SHORT).show();
-        /*String s = marker.getTitle();
-        s = s.substring(9);*/
         String s = markerMap.get(marker);
-        //Log.d("SUBSTRING: ", s);
         Intent intent = new Intent(getApplicationContext(), ThreadViewActivity.class);
 
         //s = "1";
         intent.putExtra("thread_id", s);
+        setLoc();
         startActivity(intent);
         overridePendingTransition(R.animator.enter_threadview_from_main, R.animator.exit_threadview_from_main);
     }
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        //Log.d("MARKER CLICKED", "Marco");
         marker.showInfoWindow();
         return true;
     }
@@ -520,7 +487,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     @Override
     public boolean onTouchEvent(MotionEvent event){
         this.mDetector.onTouchEvent(event);
-        // Be sure to call the superclass implementation
         return super.onTouchEvent(event);
     }
 
@@ -562,38 +528,28 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             return result;
         }
 
-        //@Override
-        //public void onLongPress(MotionEvent event) {
-        //    Log.d(DEBUG_TAG, "onLongPress: ");
-        //    Toast.makeText(list.getItem())
-        //}
-
         public void onSwipeRight() {
-            //Log.d("FXN", "SWIPE RIGHT");
             //User is logged in, go to account settings
             if (checkLoggedIn())
             {
-                //Log.d("FXN","Logged In View");
                 Intent intent = new Intent(MainActivity.this, AccountSettingsActivity.class);
+                setLoc();
                 startActivity(intent);
                 overridePendingTransition(R.animator.enter_login_from_main, R.animator.exit_login_from_main);
             }
             else
             {
-                //Log.d("FXN","Not Logged In View");
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                setLoc();
                 startActivity(intent);
                 overridePendingTransition(R.animator.enter_login_from_main, R.animator.exit_login_from_main);
             }
         }
         public void onSwipeLeft() {
-            //Log.d("FXN", "SWIPE LEFT");
         }
         public void onSwipeTop() {
-            //Log.d("FXN", "SWIPE TOP");
         }
         public void onSwipeBottom() {
-            //Log.d("FXN", "SWIPE BOTTOM");
         }
     }
 }
